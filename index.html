@@ -648,6 +648,17 @@ button.tag:hover { background: #e4d3ff; }
 .w-beats { display: flex; flex-direction: column; gap: 14px; transition: opacity .2s; }
 .w-beats.is-loading { opacity: .45; pointer-events: none; }
 .window-col .idea-box textarea { min-height: 0; }
+.w-beat p b, .beat p b { color: var(--accent-neon); font-weight: 600; }
+.empty-beats { text-align: center; padding: 32px 0; color: var(--text-muted); font-size: 14px; }
+.extra { display: flex; flex-direction: column; gap: 10px; font-size: 13px; line-height: 19px; }
+.checks { display: flex; flex-wrap: wrap; gap: 6px; }
+.check { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 10px; border-radius: var(--radius-pill); background: rgba(25,179,125,.12); color: #0f7a54; font-family: var(--font-label); font-size: 11px; }
+.check.no { background: rgba(220,50,90,.1); color: #b4234a; }
+.extra .nota { font-size: 12px; color: var(--text-muted); }
+.extra details { background: #fff; border: 1px solid var(--line-soft); border-radius: 12px; padding: 10px 14px; }
+.extra summary { cursor: pointer; font-family: var(--font-label); font-weight: 500; font-size: 12px; color: var(--text-secondary); }
+.extra details p { margin-top: 8px; white-space: pre-line; }
+.extra ol { margin: 8px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
 @media (max-width: 560px) { .mini-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .window-foot { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); }
 
@@ -847,18 +858,19 @@ button.tag:hover { background: #e4d3ff; }
                 <span class="upper" style="color:var(--text-secondary)">Idea central</span>
                 <textarea id="l-idea" rows="2" maxlength="400" aria-label="Idea central del guion" placeholder="Ej. 3 errores que cometen los creadores al editar su primer reel"></textarea>
               </div>
-              <span class="upper muted">1. Nivel de tono</span>
+              <span class="upper muted">1. ¿Qué quieres que hagan?</span>
+              <div class="chip-row" data-group="objetivo">
+                <button class="chip chip--plain is-selected" type="button" data-option data-value="Guardar">Que lo guarden</button>
+                <button class="chip chip--plain" type="button" data-option data-value="Compartir">Que lo compartan</button>
+                <button class="chip chip--plain" type="button" data-option data-value="Comentar">Que comenten</button>
+                <button class="chip chip--plain" type="button" data-option data-value="Seguir">Que te sigan</button>
+              </div>
+              <span class="upper muted">2. Nivel de tono</span>
               <div class="chip-row" data-group="tono">
                 <button class="chip chip--plain is-selected" type="button" data-option data-value="Dinámico & Viral">Dinámico &amp; Viral</button>
                 <button class="chip chip--plain" type="button" data-option data-value="Storytelling">Storytelling</button>
                 <button class="chip chip--plain" type="button" data-option data-value="Autoridad">Autoridad</button>
                 <button class="chip chip--plain" type="button" data-option data-value="Educativo">Educativo</button>
-              </div>
-              <span class="upper muted">2. Marco de retención</span>
-              <div class="chip-row" data-group="marco">
-                <button class="chip chip--plain is-selected" type="button" data-option data-value="Gancho 3s">Gancho 3s</button>
-                <button class="chip chip--plain" type="button" data-option data-value="Problema → Solución">Problema → Solución</button>
-                <button class="chip chip--plain" type="button" data-option data-value="Mito vs Realidad">Mito vs Realidad</button>
               </div>
               <span class="upper muted">3. Destino de producción</span>
               <div class="chip-row" data-group="plataforma">
@@ -868,20 +880,25 @@ button.tag:hover { background: #e4d3ff; }
               </div>
               <button id="l-generar" class="btn btn--primary btn--block" type="button">Generar guion gratis <i data-i="zap" class="i--sm"></i></button>
               <div class="mini-stats">
-                <div><b id="l-hook">98</b><small>Gancho · /100</small></div><div><b id="l-ret">87%</b><small>Retención</small></div><div><b id="l-read">52 s</b><small>Lectura</small></div><div><b id="l-words">142</b><small>Palabras</small></div>
+                <div><b id="l-rev">7/7</b><small>Revisión</small></div><div><b id="l-blocks">5</b><small>Bloques</small></div><div><b id="l-read">33 s</b><small>Lectura</small></div><div><b id="l-words">82</b><small>Palabras</small></div>
               </div>
             </div>
             <div class="window-col">
               <div class="row"><div style="flex:1"><h3 class="card-title">Vista Previa del Guion Sintetizado</h3><div class="card-sub" id="l-sub">Ejemplo · escribe tu idea y genera el tuyo</div></div>
                 <button id="l-copy" class="chip chip--plain" type="button" style="height:30px">Copiar</button><button id="l-regen" class="chip chip--plain" type="button" style="height:30px">Regenerar</button></div>
               <div class="w-beats" id="l-beats" aria-live="polite">
-                <div class="w-beat"><div class="t"><span>0:00 - 0:03 | El Gancho Psicológico</span><span class="pill pill--sm">Retención Crítica</span></div>
-                  <p>“El 99% de los creadores cometen el error de editar antes de estructurar. Te muestro la fórmula que usan los estudios de 7 cifras.”</p><em>Pista visual: Zoom rápido al rostro con corte en seco al monitor de Flowy.</em></div>
-                <div class="w-beat"><div class="t"><span>0:03 - 0:45 | El Cuerpo de Alto Valor</span><span class="pill pill--sm">3 Puntos Clave</span></div>
-                  <p>“Paso 1: Identifica qué patrón está saturado en tu nicho. Paso 2: Invierte la premisa en los primeros dos segundos. Paso 3: Entrega la solución de inmediato.”</p><em>Subtítulos dinámicos con luz neural sincronizados palabra por palabra.</em></div>
-                <div class="w-beat"><div class="t"><span>0:45 - 0:60 | Cierre &amp; Conversión</span><span class="pill pill--sm">CTA Claro</span></div>
-                  <p>“Escribe 'FLOWY' en comentarios y te envío esta plantilla exacta para que generes tus próximos diez contenidos virales.”</p><em>Disparador de lead magnet automatizado.</em></div>
+                <div class="w-beat"><div class="t"><span>0:00 – 0:03 | Gancho</span><span class="pill pill--sm">El gancho</span></div>
+                  <p>“Si editas tu primer <b>reel</b> así, la gente se va en tres segundos.”</p><em>En pantalla: TU PRIMER REEL · Primer plano y corte seco.</em></div>
+                <div class="w-beat"><div class="t"><span>0:03 – 0:08 | Promesa</span><span class="pill pill--sm">El mapa</span></div>
+                  <p>“Son tres errores al editar tu primer <b>reel</b>. El segundo es el que más vistas cuesta.”</p><em>En pantalla: 3 ERRORES · Tres casillas que se van marcando.</em></div>
+                <div class="w-beat"><div class="t"><span>0:08 – 0:40 | Desarrollo</span><span class="pill pill--sm">Los 3 errores</span></div>
+                  <p>“Uno: <b>silencios</b> al empezar cada frase. Córtalos. Dos: cambiar de plano sin motivo. El plano cambia cuando cambia la idea. Tres: subtítulos que tapan tu cara. El texto acompaña, no tapa.”</p><em>Un ejemplo en pantalla por error, con un cambio visual cada 2–3 s.</em></div>
+                <div class="w-beat"><div class="t"><span>0:40 – 0:48 | Giro</span><span class="pill pill--sm">El giro</span></div>
+                  <p>“Editar bien no es añadir efectos. Es <b>quitar</b> lo que distrae.”</p><em>En pantalla: QUITA, NO AÑADAS · Corte a negro y texto centrado.</em></div>
+                <div class="w-beat"><div class="t"><span>0:48 – 0:55 | Llamada</span><span class="pill pill--sm">Guárdalo</span></div>
+                  <p>“<b>Guarda</b> este vídeo y míralo antes de exportar tu próximo reel.”</p><em>Señala el botón de guardar.</em></div>
               </div>
+              <div class="extra" id="l-extra" hidden></div>
               <div class="window-foot"><i data-i="check" class="i--sm" style="color:var(--ok)"></i> <span id="l-foot">Guion de ejemplo listo para producción</span></div>
             </div>
           </div>
@@ -1486,7 +1503,21 @@ button.tag:hover { background: #e4d3ff; }
           </div>
 
           <div class="param">
-            <span class="upper">1. Tono</span>
+            <span class="upper">Tu dato real (opcional)</span>
+            <input id="dato" class="text-input" maxlength="200" placeholder="Ej. pasé de 200 a 2.000 seguidores en 3 meses">
+            <small class="muted" style="font-size:11px">Flowy no inventa cifras: si quieres un número en el guion, ponlo aquí.</small>
+          </div>
+          <div class="param">
+            <span class="upper">1. Objetivo</span>
+            <div class="chip-row" data-group="objetivo">
+              <button class="chip chip--plain is-selected" data-option data-value="Guardar">Que lo guarden</button>
+              <button class="chip chip--plain" data-option data-value="Compartir">Que lo compartan</button>
+              <button class="chip chip--plain" data-option data-value="Comentar">Que comenten</button>
+              <button class="chip chip--plain" data-option data-value="Seguir">Que te sigan</button>
+            </div>
+          </div>
+          <div class="param">
+            <span class="upper">2. Tono</span>
             <div class="chip-row" data-group="tono">
               <button class="chip chip--plain is-selected" data-option data-value="Dinámico & Viral">Dinámico &amp; Viral</button>
               <button class="chip chip--plain" data-option data-value="Storytelling">Storytelling</button>
@@ -1495,15 +1526,16 @@ button.tag:hover { background: #e4d3ff; }
             </div>
           </div>
           <div class="param">
-            <span class="upper">2. Marco de retención</span>
+            <span class="upper">3. Tipo de gancho</span>
             <div class="chip-row" data-group="marco">
-              <button class="chip chip--plain is-selected" data-option data-value="Gancho 3s">Gancho 3s</button>
+              <button class="chip chip--plain is-selected" data-option data-value="Automático">Automático</button>
+              <button class="chip chip--plain" data-option data-value="Gancho 3s">Gancho 3s</button>
               <button class="chip chip--plain" data-option data-value="Problema → Solución">Problema → Solución</button>
               <button class="chip chip--plain" data-option data-value="Mito vs Realidad">Mito vs Realidad</button>
             </div>
           </div>
           <div class="param">
-            <span class="upper">3. Plataforma</span>
+            <span class="upper">4. Plataforma</span>
             <div class="chip-row" data-group="plataforma">
               <button class="chip chip--plain is-selected" data-option data-value="TikTok / Reels">TikTok / Reels</button>
               <button class="chip chip--plain" data-option data-value="YouTube">YouTube</button>
@@ -1511,7 +1543,7 @@ button.tag:hover { background: #e4d3ff; }
             </div>
           </div>
           <div class="param">
-            <span class="upper">4. Duración</span>
+            <span class="upper">5. Duración</span>
             <div class="chip-row" data-group="duracion">
               <button class="chip chip--plain is-selected" data-option data-value="30–60 s">30–60 s</button>
               <button class="chip chip--plain" data-option data-value="1–3 min">1–3 min</button>
@@ -1528,20 +1560,21 @@ button.tag:hover { background: #e4d3ff; }
         <!-- Vista previa -->
         <section class="panel">
           <div class="panel-head">
-            <div><h3>Vista previa del guion</h3><div class="card-sub" id="synth">Sintetizado por Flowy-Core-X · hace 4 s</div></div>
+            <div><h3>Vista previa del guion</h3><div class="card-sub" id="synth">Escribe tu idea y pulsa Generar</div></div>
             <div class="row" style="gap:8px">
               <button id="btn-copy" class="btn btn--secondary btn--sm" type="button">Copiar</button>
               <button id="btn-regen" class="btn btn--secondary btn--sm" type="button">Regenerar</button>
             </div>
           </div>
 
-          <div class="beats" id="beats"></div>
+          <div class="beats" id="beats"><p class="empty-beats">Tu guion aparecerá aquí: gancho, promesa, desarrollo, giro y llamada.</p></div>
+          <div class="extra" id="extra" hidden></div>
 
           <div class="stats4">
-            <div class="stat"><b id="st-hook">98</b><span>Gancho</span></div>
-            <div class="stat"><b id="st-ret">87%</b><span>Retención</span></div>
-            <div class="stat"><b id="st-read">52 s</b><span>Lectura</span></div>
-            <div class="stat"><b id="st-words">142</b><span>Palabras</span></div>
+            <div class="stat"><b id="st-rev">–</b><span>Revisión</span></div>
+            <div class="stat"><b id="st-blocks">–</b><span>Bloques</span></div>
+            <div class="stat"><b id="st-read">–</b><span>Lectura</span></div>
+            <div class="stat"><b id="st-words">–</b><span>Palabras</span></div>
           </div>
 
           <div class="panel-foot">
@@ -2091,6 +2124,30 @@ window.FLOWY_IMG={"base": "data:image/webp;base64,UklGRoi3AQBXRUJQVlA4WAoAAAAQAA
     return j;
   }
 
+  /* ---------- Pintar un guion (portada y generador) ---------- */
+  const POS = { gancho: "Gancho", promesa: "Promesa", desarrollo: "Desarrollo", giro: "Giro", llamada: "Llamada" };
+  function resaltar(texto, clave) {
+    const t = esc(texto), k = esc(clave).trim(), i = k ? t.toLowerCase().indexOf(k.toLowerCase()) : -1;
+    return i < 0 ? t : t.slice(0, i) + "<b>" + t.slice(i, i + k.length) + "</b>" + t.slice(i + k.length);
+  }
+  const notaBloque = (b) => [b.texto_pantalla && "En pantalla: " + b.texto_pantalla, b.pista].filter(Boolean).map(esc).join(" · ");
+  const revisionTxt = (g) => g.revision.filter((r) => r.ok).length + "/" + g.revision.length;
+  function htmlExtra(g) {
+    const notas = g.revision.filter((r) => !r.ok && r.nota).map((r) => esc(r.nota)).join(" ");
+    return `<div class="checks">${g.revision.map((r) => `<span class="check${r.ok ? "" : " no"}">${r.ok ? "✓" : "✗"} ${esc(r.texto)}</span>`).join("")}</div>` +
+      (notas ? `<p class="nota">${notas}</p>` : "") +
+      (g.ganchos.length ? `<details><summary>Otros ${g.ganchos.length} ganchos para probar</summary><ol>${g.ganchos.map((x) => `<li>${esc(x)}</li>`).join("")}</ol></details>` : "") +
+      (g.leyenda ? `<details><summary>Leyenda lista para publicar</summary><p>${esc(g.leyenda)}</p></details>` : "");
+  }
+  function textoGuion(g) {
+    return [
+      g.titulo + (g.formato ? " · " + g.formato : ""),
+      ...g.beats.map((b) => `[${b.tiempo}] ${POS[b.posicion]} · ${b.etiqueta}\n${b.texto}` + (b.texto_pantalla ? `\nEn pantalla: ${b.texto_pantalla}` : "") + (b.pista ? `\nPista: ${b.pista}` : "")),
+      g.ganchos.length ? "Otros ganchos:\n" + g.ganchos.map((x) => "- " + x).join("\n") : "",
+      g.leyenda ? "Leyenda:\n" + g.leyenda : ""
+    ].filter(Boolean).join("\n\n");
+  }
+
   /* ---------- Grupos de selección (chips / cards / opciones) ----------
      <div data-group="clave" [data-multi]> <button data-option data-value="..."> */
   function initGroups() {
@@ -2202,8 +2259,9 @@ window.FLOWY_IMG={"base": "data:image/webp;base64,UklGRoi3AQBXRUJQVlA4WAoAAAAQAA
   /* ---------- Landing: guiones gratis con IA (sin cuenta) ---------- */
   const GRATIS = 3;
   function initDemo() {
-    const btn = $("#l-generar"), idea = $("#l-idea"), beats = $("#l-beats");
+    const btn = $("#l-generar"), idea = $("#l-idea"), beats = $("#l-beats"), extra = $("#l-extra");
     const orig = btn.innerHTML;
+    let ultimo;
     const quedan = () => Math.max(0, GRATIS - store.get("gratis", 0));
     const estado = () => {
       const n = quedan();
@@ -2220,16 +2278,19 @@ window.FLOWY_IMG={"base": "data:image/webp;base64,UklGRoi3AQBXRUJQVlA4WAoAAAAQAA
       beats.classList.add("is-loading");
       try {
         const plat = selected("plataforma");
-        const g = await pedirGuion({ idea: idea.value, tono: selected("tono"), marco: selected("marco"), plataforma: plat, duracion: plat === "YouTube" ? "1–3 min" : "30–60 s" });
+        const g = await pedirGuion({ idea: idea.value, objetivo: selected("objetivo"), tono: selected("tono"), plataforma: plat, duracion: plat === "YouTube" ? "1–3 min" : "30–60 s" });
         store.set("gratis", store.get("gratis", 0) + 1);
+        ultimo = g;
         beats.innerHTML = g.beats.map((b) => `
-          <div class="w-beat is-new"><div class="t"><span>${esc(b.tiempo)} | ${esc(b.seccion)}</span><span class="pill pill--sm">${esc(b.etiqueta)}</span></div>
-            <p>“${esc(b.texto)}”</p><em>${esc(b.pista)}</em></div>`).join("");
-        $("#l-hook").textContent = g.gancho;
-        $("#l-ret").textContent = g.retencion + "%";
+          <div class="w-beat is-new"><div class="t"><span>${esc(b.tiempo)} | ${POS[b.posicion]}</span><span class="pill pill--sm">${esc(b.etiqueta)}</span></div>
+            <p>“${resaltar(b.texto, b.palabra_clave)}”</p><em>${notaBloque(b)}</em></div>`).join("");
+        extra.innerHTML = htmlExtra(g);
+        extra.hidden = false;
+        $("#l-rev").textContent = revisionTxt(g);
+        $("#l-blocks").textContent = g.beats.length;
         $("#l-read").textContent = lectura(g.segundos);
         $("#l-words").textContent = g.palabras;
-        $("#l-sub").textContent = g.titulo;
+        $("#l-sub").textContent = g.titulo + " · " + g.formato;
         $("#l-foot").textContent = "Guion generado por Flowy · listo para grabar";
         toast("Guion generado ✨");
       } catch (e) {
@@ -2242,7 +2303,7 @@ window.FLOWY_IMG={"base": "data:image/webp;base64,UklGRoi3AQBXRUJQVlA4WAoAAAAQAA
     };
     btn.addEventListener("click", generar);
     $("#l-regen").addEventListener("click", generar);
-    $("#l-copy").addEventListener("click", () => copiar($$(".w-beat", beats).map((b) => b.innerText.replace(/\n+/g, "\n")).join("\n\n")));
+    $("#l-copy").addEventListener("click", () => copiar(ultimo ? textoGuion(ultimo) : $$(".w-beat", beats).map((b) => b.innerText.replace(/\n+/g, "\n")).join("\n\n")));
     idea.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); generar(); } });
     estado();
   }
@@ -2269,60 +2330,13 @@ window.FLOWY_IMG={"base": "data:image/webp;base64,UklGRoi3AQBXRUJQVlA4WAoAAAAQAA
   }
 
   /* ---------- Generador ---------- */
-  const HOOKS = {
-    "Gancho 3s": (i) => `“${cap(i)}: el 99% lo hace al revés. Te muestro la fórmula que usan los estudios de 7 cifras.”`,
-    "Problema → Solución": (i) => `“Tu problema no es la constancia, es ${i}. Esto es lo que cambia todo en menos de un minuto.”`,
-    "Mito vs Realidad": (i) => `“Mito: ${i} no importa. Realidad: es lo primero que mide el algoritmo.”`
-  };
-  const BODIES = {
-    "Dinámico & Viral": ["“Paso 1: detecta el patrón saturado de tu nicho. Paso 2: invierte la premisa en los primeros dos segundos. Paso 3: entrega la solución sin relleno.”", "“Corta rápido, muestra el resultado primero y explica después. Cada 3 segundos, un nuevo estímulo visual.”"],
-    "Storytelling": ["“Hace un año grababa sin estructura y nadie me veía. Cambié una sola cosa en el guion y todo se movió. Te cuento cuál.”", "“Empieza por el error, sigue con el giro y cierra con la lección. Tres actos, cero relleno.”"],
-    "Autoridad": ["“Los datos son claros: los videos con gancho invertido retienen 2,3 veces más. Aquí tienes el método paso a paso.”", "“Después de analizar cientos de guiones, estos son los tres patrones que se repiten en los que superan el 90% de retención.”"],
-    "Educativo": ["“Vamos por partes: primero el concepto, luego un ejemplo real y finalmente cómo aplicarlo hoy mismo en tu próximo video.”", "“Piensa en tu guion como una receta: ingrediente clave, orden de pasos y presentación final. Te lo explico.”"]
-  };
-  const CTAS = {
-    "TikTok / Reels": "“Escribe FLOWY en comentarios y te envío la plantilla exacta para tus próximos diez contenidos virales.”",
-    "YouTube": "“Si te sirvió, suscríbete y mira el siguiente video donde aplico esto en vivo.”",
-    "Carrusel": "“Guarda este carrusel y compártelo con quien lo necesite. Mañana, la parte 2.”"
-  };
-  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
-  function cleanIdea(s) { return (s || "").replace(/▍/g, "").trim().replace(/[.!?¿¡]+$/g, "").replace(/^./, (c) => c.toLowerCase()); }
-
   function initGenerator() {
     const idea = $("#idea");
     const params = new URLSearchParams(window.__flowyQuery || "");
     if (params.get("idea")) idea.value = params.get("idea");
     const cfg = store.get("config", {});
-    let variant = 0;
     let credits = store.get("credits", 450);
-
-    const render = (animate) => {
-      const i = cleanIdea(idea.value) || "editar sin estructurar";
-      const tono = selected("tono") || "Dinámico & Viral";
-      const marco = selected("marco") || "Gancho 3s";
-      const plat = selected("plataforma") || "TikTok / Reels";
-      const dur = selected("duracion") || "30–60 s";
-      const body = BODIES[tono][variant % 2];
-      const beats = [
-        { t: "0:00 – 0:03 · Gancho", tag: "Retención crítica", p: HOOKS[marco](i) },
-        { t: "0:03 – 0:45 · Cuerpo de alto valor", tag: "3 puntos clave", p: body },
-        { t: "0:45 – 1:00 · Cierre y conversión", tag: "CTA claro", p: CTAS[plat] }
-      ];
-      $("#beats").innerHTML = beats.map((b) => `
-        <article class="beat ${animate ? "is-new" : ""}">
-          <div class="beat-head"><span>${b.t}</span><span class="pill pill--sm">${b.tag}</span></div>
-          <p>${b.p}</p>
-        </article>`).join("");
-      const secs = dur.startsWith("30") ? 52 : dur.startsWith("1") ? 140 : 420;
-      const words = Math.round(secs * 2.7);
-      const hook = 90 + Math.floor(Math.random() * 9);
-      const ret = 82 + Math.floor(Math.random() * 10);
-      $("#st-hook").textContent = hook;
-      $("#st-ret").textContent = ret + "%";
-      $("#st-read").textContent = secs >= 120 ? Math.round(secs / 60) + " min" : secs + " s";
-      $("#st-words").textContent = words;
-      $("#synth").textContent = "Sintetizado por Flowy-Core-X · " + (animate ? "hace 0 s" : "hace 4 s");
-    };
+    let ultimo;
 
     // Preferencias guardadas en Configuración
     if (cfg.tono) {
@@ -2347,18 +2361,21 @@ window.FLOWY_IMG={"base": "data:image/webp;base64,UklGRoi3AQBXRUJQVlA4WAoAAAAQAA
       const orig = btn.innerHTML;
       btn.innerHTML = '<span class="spinner"></span> Flowy está escribiendo…';
       try {
-        const g = await pedirGuion({ idea: idea.value.replace(/▍/g, ""), tono: selected("tono"), marco: selected("marco"), plataforma: selected("plataforma"), duracion: selected("duracion") });
+        const g = await pedirGuion({ idea: idea.value.replace(/▍/g, ""), dato: $("#dato").value, objetivo: selected("objetivo"), tono: selected("tono"), marco: selected("marco"), plataforma: selected("plataforma"), duracion: selected("duracion") });
         credits -= 5; store.set("credits", credits);
+        ultimo = g;
         $("#beats").innerHTML = g.beats.map((b) => `
         <article class="beat is-new">
-          <div class="beat-head"><span>${esc(b.tiempo)} · ${esc(b.seccion)}</span><span class="pill pill--sm">${esc(b.etiqueta)}</span></div>
-          <p>“${esc(b.texto)}”</p><em>${esc(b.pista)}</em>
+          <div class="beat-head"><span>${esc(b.tiempo)} · ${POS[b.posicion]}</span><span class="pill pill--sm">${esc(b.etiqueta)}</span></div>
+          <p>“${resaltar(b.texto, b.palabra_clave)}”</p><em>${notaBloque(b)}</em>
         </article>`).join("");
-        $("#st-hook").textContent = g.gancho;
-        $("#st-ret").textContent = g.retencion + "%";
+        $("#extra").innerHTML = htmlExtra(g);
+        $("#extra").hidden = false;
+        $("#st-rev").textContent = revisionTxt(g);
+        $("#st-blocks").textContent = g.beats.length;
         $("#st-read").textContent = lectura(g.segundos);
         $("#st-words").textContent = g.palabras;
-        $("#synth").textContent = "Sintetizado por Flowy · " + g.titulo;
+        $("#synth").textContent = g.titulo + " · " + g.formato;
         $("#credits-left").textContent = credits;
         const pill = $(".credit-pill span"); if (pill) pill.textContent = credits + " / 500 Créditos";
         toast("Guion generado ✨");
@@ -2370,10 +2387,9 @@ window.FLOWY_IMG={"base": "data:image/webp;base64,UklGRoi3AQBXRUJQVlA4WAoAAAAQAA
     };
     btn.addEventListener("click", generar);
     $("#btn-regen").addEventListener("click", generar);
-    $("#btn-copy").addEventListener("click", () => copiar($$("#beats .beat").map((b) => b.innerText.replace(/\n+/g, "\n")).join("\n\n")));
+    $("#btn-copy").addEventListener("click", () => { if (ultimo) copiar(textoGuion(ultimo)); else toast("Primero genera un guion"); });
     $("#btn-save").addEventListener("click", () => toast("Guardado en tu Biblioteca")); // TODO(supabase): insert en scripts
     $("#btn-tele").addEventListener("click", () => toast("Teleprompter: próximamente"));
-    render(false);
     const pill = $(".credit-pill span"); if (pill) pill.textContent = credits + " / 500 Créditos";
     $("#credits-left").textContent = credits;
     if (params.get("auto")) {

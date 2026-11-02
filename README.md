@@ -28,6 +28,7 @@ El `.env` está en `.gitignore` y `.vercelignore`: nunca se sube a git ni a Verc
 | `AI_PROVIDER` | IA principal: `gemini` o `claude` (por defecto `gemini`) | No |
 | `GEMINI_API_KEY` | Clave de Gemini | **Nunca** |
 | `GEMINI_MODEL` | Modelo de Gemini (vacío = `gemini-3.6-flash`; `gemini-3.8-flash` va muy lento en cuentas nuevas) | No |
+| `GEMINI_MODEL_RESPALDO` | Modelo de Gemini que se usa si el principal está saturado (vacío = `gemini-3.5-flash`) | No |
 | `ANTHROPIC_API_KEY` | Clave de Claude | **Nunca** |
 | `CLAUDE_MODEL` | Modelo de Claude (vacío = `claude-opus-5-5`) | No |
 | `SUPABASE_URL` | URL del proyecto de Supabase | Sí, por `/api/config` |
@@ -40,8 +41,9 @@ El `.env` está en `.gitignore` y `.vercelignore`: nunca se sube a git ni a Verc
 
 ## Cómo funciona la IA
 
-- `api/guion.js` recibe la idea y las opciones (tono, marco, plataforma y duración), pide el guion a la IA principal y devuelve los bloques. Si la principal falla (error, saturación, bloqueo o respuesta vacía), lo intenta con la otra. Las claves solo viven en el servidor.
+- `api/guion.js` recibe la idea y las opciones (objetivo, tono, tipo de gancho, plataforma, duración y un dato real opcional), pide el guion a la IA principal y devuelve los bloques. Si la principal falla (error, saturación, bloqueo o respuesta vacía), lo intenta con la otra. Las claves solo viven en el servidor.
 - La respuesta incluye `proveedor` (`gemini` o `claude`) para saber cuál contestó.
+- Estructura de cada guion: gancho → promesa → desarrollo → giro → llamada. El formato sale del objetivo (guardar → Pasos o Lista, compartir → Antes y después, comentar → Opinión, seguir → Caso). Además devuelve 2 ganchos alternativos, la leyenda y una revisión calculada en el servidor (no la inventa la IA).
 - En la portada (sección «Generador de Guiones AI en Vivo») cada visitante tiene 3 guiones gratis sin registrarse. Después, el botón lleva a crear cuenta.
 - El generador del panel usa el mismo endpoint (5 créditos por guion, que de momento se guardan solo en el navegador).
 - Límite de abuso: `GUIONES_POR_HORA` por IP. Se guarda en memoria, así que es una protección básica. Pon también límites de gasto en Google AI Studio y en la consola de Anthropic.
