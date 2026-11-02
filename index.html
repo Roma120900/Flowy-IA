@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Flowy.ai</title>
+<!-- Motor de video (se descarga solo al pulsar «Descargar MP4») -->
+<script type="importmap">{ "imports": { "mediabunny": "https://cdn.jsdelivr.net/npm/mediabunny@1.61.6/dist/bundles/mediabunny.min.mjs" } }</script>
 <style>
 /* ==========================================================
    FLOWY · base.css
@@ -652,8 +654,8 @@ button.tag:hover { background: #e4d3ff; }
 .empty-beats { text-align: center; padding: 32px 0; color: var(--text-muted); font-size: 14px; }
 .extra { display: flex; flex-direction: column; gap: 10px; font-size: 13px; line-height: 19px; }
 .checks { display: flex; flex-wrap: wrap; gap: 6px; }
-.check { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 10px; border-radius: var(--radius-pill); background: rgba(25,179,125,.12); color: #0f7a54; font-family: var(--font-label); font-size: 11px; }
-.check.no { background: rgba(220,50,90,.1); color: #b4234a; }
+.checks .check { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 10px; border-radius: var(--radius-pill); background: rgba(25,179,125,.12); color: #0f7a54; font-family: var(--font-label); font-size: 11px; cursor: default; }
+.checks .check.no { background: rgba(220,50,90,.1); color: #b4234a; }
 .extra .nota { font-size: 12px; color: var(--text-muted); }
 .extra details { background: #fff; border: 1px solid var(--line-soft); border-radius: 12px; padding: 10px 14px; }
 .extra summary { cursor: pointer; font-family: var(--font-label); font-weight: 500; font-size: 12px; color: var(--text-secondary); }
@@ -661,6 +663,30 @@ button.tag:hover { background: #e4d3ff; }
 .extra ol { margin: 8px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
 @media (max-width: 560px) { .mini-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .window-foot { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); }
+
+/* ---------- Panel de video (portada y generador) ---------- */
+.vmodal { border: 0; padding: 0; border-radius: 20px; width: min(980px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); background: #fff; color: var(--text-primary); box-shadow: 0 30px 80px rgba(26,15,46,.35); overflow: auto; }
+.vmodal::backdrop { background: rgba(26,15,46,.55); backdrop-filter: blur(4px); }
+.vm-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--line-soft); }
+.vm-head h3 { font-size: 18px; font-weight: 500; line-height: 26px; }
+.vm-close { width: 36px; height: 36px; border-radius: 50%; background: var(--bg-surface); display: grid; place-items: center; font-size: 22px; line-height: 1; flex: none; }
+.vm-close:hover { background: #e8dbff; }
+.vm-body { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; padding: 20px; }
+.vm-stage { position: relative; display: grid; place-items: center; background: var(--bg-deep); border-radius: 16px; padding: 12px; min-width: 0; }
+.vm-stage canvas { display: block; max-width: 100%; max-height: min(64vh, 620px); border-radius: 12px; box-shadow: var(--shadow-card); background: #f7f2ff; cursor: pointer; }
+.vm-play { position: absolute; inset: 0; margin: auto; width: 64px; height: 64px; border-radius: 50%; background: var(--grad-btn); color: #fff; box-shadow: var(--glow); display: grid; place-items: center; font-size: 20px; transition: opacity .2s; }
+.vm-stage.is-playing .vm-play { opacity: 0; }
+.vm-stage.is-playing:hover .vm-play { opacity: .9; }
+.vm-side { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.vm-seek { width: 100%; margin: 0; accent-color: var(--accent-neon); }
+.vm-time { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); font-family: var(--font-label); }
+.vm-estado { font-size: 12px; line-height: 17px; color: var(--text-secondary); min-height: 17px; }
+.vm-nota { font-size: 12px; line-height: 17px; color: var(--text-muted); }
+@media (max-width: 760px) {
+  .vmodal { width: calc(100vw - 16px); max-height: calc(100dvh - 16px); }
+  .vm-body { grid-template-columns: minmax(0, 1fr); padding: 14px; gap: 14px; }
+  .vm-stage canvas { max-height: 52dvh; }
+}
 
 /* Pilares */
 .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
@@ -886,6 +912,7 @@ button.tag:hover { background: #e4d3ff; }
             <div class="window-col">
               <div class="row"><div style="flex:1"><h3 class="card-title">Vista Previa del Guion Sintetizado</h3><div class="card-sub" id="l-sub">Ejemplo · escribe tu idea y genera el tuyo</div></div>
                 <button id="l-copy" class="chip chip--plain" type="button" style="height:30px">Copiar</button><button id="l-regen" class="chip chip--plain" type="button" style="height:30px">Regenerar</button></div>
+              <button id="l-video" class="btn btn--secondary btn--sm btn--block" type="button"><i data-i="clapper" class="i--sm"></i> Crear video con este guion</button>
               <div class="w-beats" id="l-beats" aria-live="polite">
                 <div class="w-beat"><div class="t"><span>0:00 – 0:03 | Gancho</span><span class="pill pill--sm">El gancho</span></div>
                   <p>“Si editas tu primer <b>reel</b> así, la gente se va en tres segundos.”</p><em>En pantalla: TU PRIMER REEL · Primer plano y corte seco.</em></div>
@@ -1577,9 +1604,10 @@ button.tag:hover { background: #e4d3ff; }
             <div class="stat"><b id="st-words">–</b><span>Palabras</span></div>
           </div>
 
+          <button id="btn-video" class="btn btn--primary btn--sm btn--block" type="button"><i data-i="clapper" class="i--sm"></i> Crear video</button>
           <div class="panel-foot">
             <button id="btn-save" class="btn btn--outline btn--sm" type="button">Guardar en Biblioteca</button>
-            <button id="btn-tele" class="btn btn--primary btn--sm" type="button">Enviar a Teleprompter</button>
+            <button id="btn-tele" class="btn btn--secondary btn--sm" type="button">Enviar a Teleprompter</button>
           </div>
         </section>
       </div>
@@ -2111,14 +2139,14 @@ window.FLOWY_IMG={"base": "data:image/webp;base64,UklGRoi3AQBXRUJQVlA4WAoAAAAQAA
   }
 
   /* ---------- IA: pide un guion a /api/guion (ver api/guion.js) ---------- */
+  const SIN_SERVIDOR = "Para usar la IA abre la web con «npm start» (http://localhost:3000)";
   async function pedirGuion(datos) {
-    const sinServidor = "Para usar la IA abre la web con «npm start» (http://localhost:3000)";
-    if (location.protocol === "file:") throw new Error(sinServidor);
+    if (location.protocol === "file:") throw new Error(SIN_SERVIDOR);
     let r;
     try {
       r = await fetch("/api/guion", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(datos) });
     } catch (e) { throw new Error("No hay conexión con el servidor de Flowy"); }
-    if (r.status === 404 || r.status === 405) throw new Error(sinServidor);
+    if (r.status === 404 || r.status === 405) throw new Error(SIN_SERVIDOR);
     const j = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(j.error || "No pudimos generar el guion. Inténtalo de nuevo.");
     return j;
@@ -2146,6 +2174,533 @@ window.FLOWY_IMG={"base": "data:image/webp;base64,UklGRoi3AQBXRUJQVlA4WAoAAAAQAA
       g.ganchos.length ? "Otros ganchos:\n" + g.ganchos.map((x) => "- " + x).join("\n") : "",
       g.leyenda ? "Leyenda:\n" + g.leyenda : ""
     ].filter(Boolean).join("\n\n");
+  }
+
+  /* ---------- Video del guion: se monta en el navegador ----------
+     La misma función pintar(ctx, plan, t) dibuja la vista previa y cada fotograma del MP4.
+     Música y efectos: Web Audio. Voz: /api/voz (ver api/voz.js). MP4: Mediabunny (WebCodecs). */
+  const LIBS = {
+    aac: "https://cdn.jsdelivr.net/npm/@mediabunny/aac-encoder@1.61.6/dist/bundles/mediabunny-aac-encoder.min.mjs",
+    zip: "https://cdn.jsdelivr.net/npm/fflate@0.8.3/esm/browser.js"
+  };
+  const VOCES = [["", "Sin voz"], ["Puck", "Enérgica"], ["Kore", "Firme"], ["Sulafat", "Cálida"], ["Achird", "Cercana"]];
+  const SR = 48000, FPS = 30, ESCENA = 2.5, SLIDE = 3, MAX_VOZ = 1400;
+  const FORMATOS = {
+    vertical: { W: 1080, H: 1920, nombre: "Vertical 9:16", tituloY: .36, subY: .64, ancho: .84, tit: 118, sub: 60, mascota: [.5, .82, 300] },
+    horizontal: { W: 1920, H: 1080, nombre: "Horizontal 16:9", tituloY: .40, subY: .78, ancho: .74, tit: 100, sub: 54, mascota: [.87, .62, 250] },
+    slide: { W: 1080, H: 1350, nombre: "Carrusel 4:5" }
+  };
+  const formatoDe = (g) => g.plataforma === "Carrusel" ? "slide" : g.plataforma === "YouTube" ? "horizontal" : "vertical";
+  const plano = (s) => String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  const limpio = (w) => plano(w).replace(/[^a-z0-9]/g, "");
+  const esClave = (w, k) => { const a = limpio(w), b = limpio(k); return !!b && (a === b || (b.length >= 4 && a.startsWith(b))); };
+  const mmss = (s) => Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
+  const azar = (n) => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+  const tope = (p) => Math.min(1, Math.max(0, p));
+  const sale = (p) => 1 - Math.pow(1 - tope(p), 3);
+  const rebota = (p) => { p = tope(p); return 1 + 2.70158 * Math.pow(p - 1, 3) + 1.70158 * Math.pow(p - 1, 2); };
+
+  /* Texto: palabras con la palabra clave marcada, ajustadas a un ancho */
+  const FUENTE_T = (px) => `600 ${px}px Unbounded, Inter, sans-serif`;
+  const FUENTE_S = (px) => `600 ${px}px Inter, sans-serif`;
+  const FUENTE_C = (px) => `500 ${px}px Inter, sans-serif`;
+  const medidor = document.createElement("canvas").getContext("2d");
+  const aPalabras = (texto, clave) => String(texto).split(/\s+/).filter(Boolean).map((t) => ({ t, k: esClave(t, clave) }));
+  function envolver(palabras, fuente, ancho) {
+    medidor.font = fuente;
+    const lineas = []; let cur = [];
+    for (const p of palabras) {
+      if (cur.length && medidor.measureText(cur.concat(p).map((x) => x.t).join(" ")).width > ancho) { lineas.push(cur); cur = [p]; } else cur.push(p);
+    }
+    if (cur.length) lineas.push(cur);
+    return lineas;
+  }
+  function ajustar(palabras, fuente, px, min, ancho, maxLineas) {
+    for (; px > min; px = Math.round(px * .92)) {
+      const lineas = envolver(palabras, fuente(px), ancho);
+      if (lineas.length <= maxLineas && palabras.every((p) => medidor.measureText(p.t).width <= ancho)) return { px, lineas };
+    }
+    return { px: min, lineas: envolver(palabras, fuente(min), ancho) };
+  }
+  /* Subtítulos: trozos de hasta 4 palabras que cortan en la puntuación */
+  function trozos(texto, clave) {
+    const ps = aPalabras(texto, clave), out = []; let cur = [];
+    ps.forEach((p, i) => {
+      cur.push(p);
+      const largo = cur.map((x) => x.t).join(" ").length;
+      if (i === ps.length - 1 || cur.length >= 4 || largo > 20 || /[.:;…]$/.test(p.t) || (/,$/.test(p.t) && cur.length >= 2)) {
+        out.push(cur.map((x, j) => j === cur.length - 1 ? { ...x, t: x.t.replace(/[.,;:…]+$/, "") } : x).filter((x) => x.t));
+        cur = [];
+      }
+    });
+    return out.filter((c) => c.length);
+  }
+
+  /* Plan del video: cuándo empieza cada bloque y cada subtítulo, con el texto ya medido */
+  function planear(g, formato, tiempos) {
+    const F = FORMATOS[formato], bloques = [];
+    let t = 0;
+    g.beats.forEach((b, i) => {
+      const palabras = b.texto.split(/\s+/).filter(Boolean).length;
+      const tt = tiempos ? tiempos[i] : { t0: t, t1: t + Math.max(i === 0 ? 2.6 : 2.2, palabras / 2.7 + .5) };
+      t = tt.t1;
+      const titulo = (b.texto_pantalla || (b.posicion === "desarrollo" ? b.etiqueta : "")).trim();
+      const tit = titulo ? ajustar(aPalabras(titulo.toUpperCase(), b.palabra_clave), FUENTE_T, F.tit, 44, F.W * F.ancho, 3) : null;
+      const cs = trozos(b.texto, b.palabra_clave), pesos = cs.map((c) => c.map((x) => x.t).join(" ").length + 4);
+      const total = pesos.reduce((a, x) => a + x, 0) || 1, ini = tt.t0 + .1, fin = tt.t1 - .15;
+      let acc = 0;
+      const subs = cs.map((c, j) => {
+        const s0 = ini + (fin - ini) * acc / total; acc += pesos[j];
+        return { t0: s0, ...ajustar(c, FUENTE_S, tit ? F.sub : Math.round(F.sub * 1.3), 30, F.W * F.ancho, 2) };
+      });
+      bloques.push({ t0: tt.t0, t1: tt.t1, tit, subs, mascota: b.posicion === "llamada" });
+    });
+    return { formato, F, bloques, dur: t + .6 };
+  }
+  function planearSlides(g) {
+    const F = FORMATOS.slide, ancho = F.W * .84;
+    const slides = g.beats.map((b, i) => {
+      const titulo = (b.texto_pantalla || "").trim();
+      const tit = titulo ? ajustar(aPalabras(titulo.toUpperCase(), b.palabra_clave), FUENTE_T, i === 0 ? 108 : 80, 40, ancho, 4) : null;
+      return { tit, cuerpo: ajustar(aPalabras(b.texto, b.palabra_clave), FUENTE_C, tit ? 50 : 62, 28, ancho, tit ? 8 : 11) };
+    });
+    return { formato: "slide", F, slides, dur: slides.length * SLIDE };
+  }
+
+  /* ---------- Dibujo ---------- */
+  let mascota;
+  const cargarMascota = () => {
+    if (!mascota) { mascota = new Image(); mascota.src = window.FLOWY_IMG.celebrando; }
+    return mascota.decode().catch(() => {});
+  };
+  const cargarFuentes = () => Promise.all(["600 100px Unbounded", "600 60px Inter", "500 40px Inter"].map((f) => document.fonts.load(f))).catch(() => {});
+  function rrect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(x, y, w, h, r); else ctx.rect(x, y, w, h);
+  }
+  /* Fondo lila con tres manchas de luz que cambian de sitio en cada escena */
+  function fondo(ctx, W, H, escena, t, mezcla) {
+    const g = ctx.createLinearGradient(0, 0, W * .3, H);
+    g.addColorStop(0, "#f8f4ff"); g.addColorStop(1, "#ebdeff");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    const S = Math.min(W, H), k = sale(mezcla);
+    ["169,112,255", "210,107,255", "139,77,255"].forEach((c, i) => {
+      const x0 = azar((escena - 1) * 3 + i), y0 = azar((escena - 1) * 7 + i + .5), x1 = azar(escena * 3 + i), y1 = azar(escena * 7 + i + .5);
+      const x = (x0 + (x1 - x0) * k) * W + Math.sin(t * .4 + i * 2) * S * .04;
+      const y = (y0 + (y1 - y0) * k) * H + Math.cos(t * .33 + i) * S * .04;
+      const r = S * (.6 + .15 * i), rg = ctx.createRadialGradient(x, y, 0, x, y, r);
+      rg.addColorStop(0, `rgba(${c},${(.34 - i * .07).toFixed(2)})`); rg.addColorStop(1, `rgba(${c},0)`);
+      ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
+    });
+  }
+  /* Escribe líneas ya medidas; la palabra clave va en el color de acento */
+  function escribir(ctx, res, fuente, x, cy, color, alto, alinear = "center") {
+    ctx.font = fuente(res.px); ctx.textBaseline = "middle"; ctx.textAlign = "left";
+    const lh = res.px * alto, y0 = cy - (res.lineas.length - 1) * lh / 2, esp = ctx.measureText(" ").width;
+    res.lineas.forEach((l, i) => {
+      let px = alinear === "center" ? x - ctx.measureText(l.map((p) => p.t).join(" ")).width / 2 : x;
+      l.forEach((p) => { ctx.fillStyle = p.k ? "#8b4dff" : color; ctx.fillText(p.t, px, y0 + i * lh); px += ctx.measureText(p.t).width + esp; });
+    });
+  }
+  function marca(ctx, W, H) {
+    ctx.font = "500 28px Inter, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillStyle = "rgba(78,63,110,.5)"; ctx.fillText("Hecho con Flowy.ai", W / 2, H - 64);
+  }
+  function pintar(ctx, plan, t) {
+    if (plan.formato === "slide") return pintarSlide(ctx, plan, Math.min(plan.slides.length - 1, Math.floor(t / SLIDE)));
+    const { F, bloques } = plan, W = F.W, H = F.H;
+    let i = bloques.findIndex((x) => t < x.t1); if (i < 0) i = bloques.length - 1;
+    const bl = bloques[i], local = Math.max(0, t - bl.t0), seg = Math.floor(local / ESCENA), enSeg = local - seg * ESCENA;
+    // Un cambio visual cada 2,5 s: las luces cambian de sitio y la imagen hace un pequeño zoom
+    fondo(ctx, W, H, i * 40 + seg, t, i === 0 && seg === 0 ? 1 : enSeg / .6);
+    const antes = seg === 0 ? 1 : (seg % 2 ? 1 : 1.045), ahora = seg % 2 ? 1.045 : 1;
+    const zoom = antes + (ahora - antes) * sale(enSeg / .22);
+    ctx.save();
+    ctx.translate(W / 2, H / 2); ctx.scale(zoom, zoom); ctx.translate(-W / 2, -H / 2);
+    if (bl.tit) {
+      // El gancho ya se ve en el primer fotograma (sirve de miniatura); el resto entra con rebote
+      const p = i === 0 ? 1 : local / .38, s = .82 + .18 * rebota(p);
+      ctx.save(); ctx.globalAlpha = tope(p * 2.5);
+      ctx.translate(W / 2, H * F.tituloY); ctx.scale(s, s);
+      escribir(ctx, bl.tit, FUENTE_T, 0, 0, "#1a0f2e", 1.08);
+      ctx.restore();
+    }
+    let j = -1; bl.subs.forEach((s, k) => { if (t >= s.t0) j = k; });
+    if (j >= 0) {
+      const s = bl.subs[j], e = .9 + .1 * rebota((t - s.t0) / .14), lh = s.px * 1.2;
+      ctx.save(); ctx.translate(W / 2, bl.tit ? H * F.subY : H * .5); ctx.scale(e, e);
+      ctx.font = FUENTE_S(s.px);
+      const bw = Math.max(...s.lineas.map((l) => ctx.measureText(l.map((x) => x.t).join(" ")).width)) + s.px * 1.1, bh = s.lineas.length * lh + s.px * .7;
+      ctx.shadowColor = "rgba(106,63,208,.22)"; ctx.shadowBlur = 24; ctx.shadowOffsetY = 6; ctx.fillStyle = "#fff";
+      rrect(ctx, -bw / 2, -bh / 2, bw, bh, s.px * .45); ctx.fill();
+      ctx.shadowColor = "transparent";
+      escribir(ctx, s, FUENTE_S, 0, 0, "#1a0f2e", 1.2);
+      ctx.restore();
+    }
+    ctx.restore();
+    if (bl.mascota && mascota && mascota.naturalWidth) {
+      const [mx, my, mw] = F.mascota, mh = mw * mascota.naturalHeight / mascota.naturalWidth;
+      ctx.globalAlpha = tope(local / .3);
+      ctx.drawImage(mascota, mx * W - mw / 2, my * H - mh / 2 - Math.abs(Math.sin(local * 3.2)) * 22, mw, mh);
+      ctx.globalAlpha = 1;
+    }
+    // Barra de progreso arriba y marca abajo
+    const bx = W * .08, bw = W * .84, gr = ctx.createLinearGradient(bx, 0, bx + bw, 0);
+    gr.addColorStop(0, "#a970ff"); gr.addColorStop(1, "#d26bff");
+    ctx.fillStyle = "rgba(139,77,255,.16)"; rrect(ctx, bx, 64, bw, 10, 5); ctx.fill();
+    ctx.fillStyle = gr; rrect(ctx, bx, 64, Math.max(10, bw * tope(t / plan.dur)), 10, 5); ctx.fill();
+    marca(ctx, W, H);
+  }
+  function pintarSlide(ctx, plan, i) {
+    const { F, slides } = plan, W = F.W, H = F.H, s = slides[i], n = slides.length, x = W * .08;
+    fondo(ctx, W, H, i + 1, 0, 1);
+    ctx.font = "600 28px Inter, sans-serif";
+    const etiqueta = `${i + 1}/${n}`, ew = ctx.measureText(etiqueta).width + 40;
+    ctx.fillStyle = "#fff"; rrect(ctx, x, 72, ew, 52, 26); ctx.fill();
+    ctx.fillStyle = "#6a3fd0"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(etiqueta, x + ew / 2, 98);
+    const th = s.tit ? s.tit.lineas.length * s.tit.px * 1.08 : 0, gap = s.tit ? 44 : 0, ch = s.cuerpo.lineas.length * s.cuerpo.px * 1.35;
+    let y = H * .5 - (th + gap + ch) / 2;
+    if (s.tit) { escribir(ctx, s.tit, FUENTE_T, x, y + th / 2, "#1a0f2e", 1.08, "left"); y += th + gap; }
+    escribir(ctx, s.cuerpo, FUENTE_C, x, y + ch / 2, "#3a2a5a", 1.35, "left");
+    if (i < n - 1) {
+      ctx.font = "600 30px Inter, sans-serif"; ctx.textAlign = "right"; ctx.fillStyle = "#8b4dff"; ctx.fillText("Desliza →", W - x, H - 64);
+    } else if (mascota && mascota.naturalWidth) {
+      const mw = 170, mh = mw * mascota.naturalHeight / mascota.naturalWidth;
+      ctx.drawImage(mascota, W - x - mw, H - 40 - mh, mw, mh);
+    }
+    ctx.font = "500 26px Inter, sans-serif"; ctx.textAlign = "left"; ctx.fillStyle = "rgba(78,63,110,.5)"; ctx.fillText("Hecho con Flowy.ai", x, H - 64);
+  }
+
+  /* ---------- Voz: se pide el guion entero (o en tramos si es largo) y se sincroniza con las pausas ---------- */
+  const voces = new Map();
+  async function pedirVoz(texto, voz) {
+    const clave = voz + "|" + texto;
+    if (voces.has(clave)) return voces.get(clave);
+    if (location.protocol === "file:") throw new Error(SIN_SERVIDOR);
+    let r;
+    try {
+      r = await fetch("/api/voz", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ texto, voz }) });
+    } catch (e) { throw new Error("No hay conexión con el servidor de Flowy"); }
+    if (r.status === 404 || r.status === 405) throw new Error(SIN_SERVIDOR);
+    if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.error || "No pudimos generar la voz. Inténtalo de nuevo."); }
+    const buf = await new OfflineAudioContext(1, 1, SR).decodeAudioData(await r.arrayBuffer());
+    voces.set(clave, buf);
+    return buf;
+  }
+  /* Tramos de silencio (≥ 0,15 s) de una toma, en segundos */
+  function silencios(buf) {
+    const d = buf.getChannelData(0), paso = Math.round(buf.sampleRate / 100), runs = [];
+    let ini = -1, f = 0;
+    for (let i = 0; i < d.length; i += paso, f++) {
+      let m = 0; for (let k = i; k < Math.min(d.length, i + paso); k++) { const v = Math.abs(d[k]); if (v > m) m = v; }
+      if (m < .02) { if (ini < 0) ini = f; } else { if (ini >= 0 && f - ini >= 15) runs.push([ini / 100, f / 100]); ini = -1; }
+    }
+    if (ini >= 0 && f - ini >= 15) runs.push([ini / 100, f / 100]);
+    // Une pausas separadas por un chasquido (< 0,12 s)
+    return runs.reduce((out, r) => { const u = out.at(-1); if (u && r[0] - u[1] < .12) u[1] = r[1]; else out.push(r); return out; }, []);
+  }
+  /* Dónde empieza cada pieza dentro de la toma. Se espera el corte donde toca por número de caracteres
+     y se ajusta a la pausa cercana más larga: entre bloques la voz para más que entre frases */
+  function cortar(buf, pesos) {
+    const runs = silencios(buf);
+    const habla0 = runs[0] && runs[0][0] === 0 ? runs[0][1] : 0;
+    const habla1 = runs.length && runs.at(-1)[1] >= buf.duration - .02 ? runs.at(-1)[0] : buf.duration;
+    const cortes = [0];
+    let prev = habla0, resto = pesos.reduce((a, b) => a + b, 0);
+    for (let k = 0; k < pesos.length - 1; k++) {
+      const esperado = prev + (habla1 - prev) * pesos[k] / resto, margen = Math.max(1.2, (habla1 - prev) / (pesos.length - k) * .45);
+      resto -= pesos[k];
+      let mejor = null, nota = -Infinity;
+      for (const [a, b] of runs) {
+        const c = (a + b) / 2;
+        if (c <= prev + .3 || Math.abs(c - esperado) > margen) continue;
+        const n = (b - a) * 2 - Math.abs(c - esperado) * .35;
+        if (n > nota) { nota = n; mejor = c; }
+      }
+      prev = mejor ?? Math.max(prev + .3, esperado);
+      cortes.push(prev);
+    }
+    return cortes;
+  }
+  async function conVoz(g, voz, aviso) {
+    // Piezas de hasta 600 caracteres (por frases) agrupadas en peticiones de hasta MAX_VOZ
+    const piezas = g.beats.flatMap((b, i) => {
+      const out = [];
+      for (const f of b.texto.match(/[^.!?…:;]+[.!?…:;]*\s*/g) || [b.texto]) {
+        if (out.length && (out.at(-1).t + f).length <= 600) out[out.length - 1].t += f; else out.push({ i, t: f });
+      }
+      return out.map((p) => ({ i, t: p.t.trim() })).filter((p) => p.t);
+    });
+    const grupos = [];
+    for (const p of piezas) {
+      const gr = grupos.at(-1);
+      if (gr && gr.reduce((n, x) => n + x.t.length + 2, 0) + p.t.length <= MAX_VOZ) gr.push(p); else grupos.push([p]);
+    }
+    const tiempos = g.beats.map(() => ({ t0: Infinity, t1: 0 })), tomas = [];
+    let at = 0;
+    for (const [n, gr] of grupos.entries()) {
+      aviso(grupos.length > 1 ? `Poniendo voz… ${n + 1}/${grupos.length}` : "Poniendo voz…");
+      const buf = await pedirVoz(gr.map((p) => p.t).join("\n\n"), voz), cortes = cortar(buf, gr.map((p) => p.t.length));
+      gr.forEach((p, k) => {
+        const tt = tiempos[p.i];
+        tt.t0 = Math.min(tt.t0, at + cortes[k]); tt.t1 = at + (cortes[k + 1] ?? buf.duration);
+      });
+      tomas.push({ buf, at });
+      at += buf.duration + .1;
+    }
+    tiempos[0].t0 = 0;
+    tiempos.forEach((tt, i) => { if (tt.t0 === Infinity) tt.t0 = tt.t1 = i ? tiempos[i - 1].t1 : 0; }); // bloque sin texto
+    return { tiempos, tomas };
+  }
+
+  /* ---------- Música original (sintetizada), efectos y voz en una sola pista ---------- */
+  async function mezclar(plan, tono, tomas) {
+    const dur = plan.dur, ctx = new OfflineAudioContext(dur > 180 ? 1 : 2, Math.ceil(dur * SR), SR);
+    const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -12; comp.ratio.value = 4; comp.connect(ctx.destination);
+    const musica = ctx.createGain(), nivel = tomas.length ? .14 : .3;
+    musica.connect(comp);
+    musica.gain.setValueAtTime(0, 0); musica.gain.linearRampToValueAtTime(nivel, .5);
+    musica.gain.setValueAtTime(nivel, Math.max(.6, dur - 1.5)); musica.gain.linearRampToValueAtTime(0, dur);
+    // [pulsaciones por minuto, bombo cada N tiempos (0 = sin bombo), platillos, arpegio]
+    const [bpm, bombo, platillos, arpegio] = { "Dinámico & Viral": [112, 1, 1, 1], "Storytelling": [80, 0, 0, 1], "Autoridad": [96, 1, 1, 0], "Educativo": [90, 2, 0, 1] }[tono] || [104, 1, 1, 1];
+    const tiempo = 60 / bpm, hz = (m) => 440 * Math.pow(2, (m - 69) / 12);
+    const ACORDES = [[57, 60, 64], [53, 57, 60], [55, 60, 64], [55, 59, 62]], BAJOS = [45, 41, 48, 43];
+    const ruido = ctx.createBuffer(1, SR / 2, SR), dr = ruido.getChannelData(0);
+    for (let i = 0; i < dr.length; i++) dr[i] = Math.random() * 2 - 1;
+    const filtro = ctx.createBiquadFilter(); filtro.type = "lowpass"; filtro.frequency.value = 1400; filtro.connect(musica);
+    const nota = (tipo, f, t, vol, largo, destino = musica) => {
+      const o = ctx.createOscillator(), gn = ctx.createGain();
+      o.type = tipo; o.frequency.value = f;
+      gn.gain.setValueAtTime(.0001, t); gn.gain.exponentialRampToValueAtTime(vol, t + .01); gn.gain.exponentialRampToValueAtTime(.0001, t + largo);
+      o.connect(gn).connect(destino); o.start(t); o.stop(t + largo + .02);
+    };
+    for (let c = 0, t = 0; t < dur; c++, t += tiempo * 8) {
+      const fin = t + tiempo * 8;
+      ACORDES[c % 4].forEach((m) => [-7, 7].forEach((det) => {
+        const o = ctx.createOscillator(), gn = ctx.createGain();
+        o.type = "sawtooth"; o.frequency.value = hz(m); o.detune.value = det;
+        gn.gain.setValueAtTime(0, t); gn.gain.linearRampToValueAtTime(.03, t + .5); gn.gain.setValueAtTime(.03, fin - .3); gn.gain.linearRampToValueAtTime(0, fin + .2);
+        o.connect(gn).connect(filtro); o.start(t); o.stop(fin + .25);
+      }));
+      for (let k = 0; k < 8; k += 2) nota("sine", hz(BAJOS[c % 4]), t + k * tiempo, .16, tiempo * 1.8);
+    }
+    for (let k = 0, t = 0; t < dur; k++, t = k * tiempo) {
+      if (bombo && k % bombo === 0) {
+        const o = ctx.createOscillator(), gn = ctx.createGain();
+        o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(45, t + .12);
+        gn.gain.setValueAtTime(.55, t); gn.gain.exponentialRampToValueAtTime(.001, t + .32);
+        o.connect(gn).connect(musica); o.start(t); o.stop(t + .34);
+      }
+      if (platillos) {
+        const s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), gn = ctx.createGain(), th = t + tiempo / 2;
+        s.buffer = ruido; f.type = "highpass"; f.frequency.value = 7500;
+        gn.gain.setValueAtTime(.08, th); gn.gain.exponentialRampToValueAtTime(.001, th + .06);
+        s.connect(f).connect(gn).connect(musica); s.start(th, (k % 5) * .08, .08);
+      }
+      if (arpegio) { const a = ACORDES[Math.floor(k / 8) % 4]; nota("triangle", hz(a[(k * 2) % 3] + 12), t, .06, .22); nota("triangle", hz(a[(k * 2 + 1) % 3] + 12), t + tiempo / 2, .05, .2); }
+    }
+    // «Whoosh» en cada cambio de bloque
+    (plan.bloques || []).slice(1).forEach((b) => {
+      const t = Math.max(0, b.t0 - .15), s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), gn = ctx.createGain();
+      s.buffer = ruido; f.type = "bandpass"; f.Q.value = 1.2;
+      f.frequency.setValueAtTime(500, t); f.frequency.exponentialRampToValueAtTime(3500, t + .28);
+      gn.gain.setValueAtTime(.0001, t); gn.gain.exponentialRampToValueAtTime(.22, t + .14); gn.gain.exponentialRampToValueAtTime(.001, t + .32);
+      s.connect(f).connect(gn).connect(comp); s.start(t, 0, .34);
+    });
+    for (const { buf, at } of tomas) { const s = ctx.createBufferSource(); s.buffer = buf; s.connect(comp); s.start(at); }
+    return ctx.startRendering();
+  }
+
+  /* ---------- Exportar ---------- */
+  function bajar(blob, nombre) {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = nombre;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 60e3);
+  }
+  function trozoAudio(buf, i0, i1) {
+    const out = new AudioBuffer({ length: i1 - i0, numberOfChannels: buf.numberOfChannels, sampleRate: buf.sampleRate });
+    for (let c = 0; c < buf.numberOfChannels; c++) out.copyToChannel(buf.getChannelData(c).subarray(i0, i1), c);
+    return out;
+  }
+  async function exportarVideo(plan, audio, avance, cancelado) {
+    avance(0, "Cargando el motor de video…");
+    const mb = await import("mediabunny");
+    const { W, H } = plan.F, calidad = plan.dur > 180 ? mb.QUALITY_MEDIUM : mb.QUALITY_HIGH;
+    let formato = new mb.Mp4OutputFormat(), acodec = "aac";
+    let vcodec = await mb.getFirstEncodableVideoCodec(["avc"], { width: W, height: H, quality: calidad });
+    if (vcodec) {
+      // Sin AAC nativo (Firefox, Chrome en Linux) se usa un codificador en WebAssembly
+      if (audio && !(await mb.canEncodeAudio("aac", { numberOfChannels: audio.numberOfChannels, sampleRate: audio.sampleRate, quality: calidad }))) {
+        avance(0, "Cargando el codificador de audio…");
+        (await import(LIBS.aac)).registerAacEncoder();
+      }
+    } else {
+      formato = new mb.WebMOutputFormat();
+      vcodec = await mb.getFirstEncodableVideoCodec(["vp9", "vp8", "av1"], { width: W, height: H, quality: calidad });
+      if (!vcodec) throw new Error("Tu navegador no puede crear videos. Prueba con Chrome, Edge o Safari actualizados.");
+      acodec = await mb.getFirstEncodableAudioCodec(["opus", "vorbis"]);
+    }
+    const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+    const ctx = cv.getContext("2d");
+    const salida = new mb.Output({ format: formato, target: new mb.BufferTarget() });
+    const video = new mb.CanvasSource(cv, { codec: vcodec, quality: calidad });
+    salida.addVideoTrack(video, { frameRate: FPS });
+    let sonido = null;
+    if (audio && acodec) { sonido = new mb.AudioBufferSource({ codec: acodec, quality: calidad }); salida.addAudioTrack(sonido); }
+    await salida.start();
+    // El audio entra a trozos de 1 s junto al video, para no acumularlo todo en memoria
+    const total = Math.ceil(plan.dur * FPS), sr = audio ? audio.sampleRate : 0;
+    let hasta = 0;
+    for (let f = 0; f < total; f++) {
+      if (cancelado()) { await salida.cancel(); return null; }
+      const t = f / FPS;
+      pintar(ctx, plan, t);
+      await video.add(t, 1 / FPS);
+      if (sonido && hasta < audio.length && t + 1 >= hasta / sr) { const fin = Math.min(audio.length, hasta + sr); await sonido.add(trozoAudio(audio, hasta, fin)); hasta = fin; }
+      if (f % 10 === 0) avance(f / total);
+    }
+    while (sonido && hasta < audio.length) { const fin = Math.min(audio.length, hasta + sr); await sonido.add(trozoAudio(audio, hasta, fin)); hasta = fin; }
+    await salida.finalize();
+    return new Blob([salida.target.buffer], { type: formato.mimeType });
+  }
+  async function exportarSlides(plan, avance) {
+    const { zipSync } = await import(LIBS.zip);
+    const cv = document.createElement("canvas"); cv.width = plan.F.W; cv.height = plan.F.H;
+    const ctx = cv.getContext("2d"), archivos = {};
+    for (let i = 0; i < plan.slides.length; i++) {
+      pintarSlide(ctx, plan, i);
+      // JPG: los degradados en PNG pesan ~1,7 MB por slide y tardan mucho en codificarse
+      const jpg = await new Promise((ok) => cv.toBlob(ok, "image/jpeg", .92));
+      archivos[`slide-${String(i + 1).padStart(2, "0")}.jpg`] = [new Uint8Array(await jpg.arrayBuffer()), { level: 0 }];
+      avance((i + 1) / plan.slides.length, `Preparando slides… ${i + 1}/${plan.slides.length}`);
+    }
+    return new Blob([zipSync(archivos)], { type: "application/zip" });
+  }
+
+  /* ---------- Panel de video ---------- */
+  let actx;
+  function abrirVideo(g) {
+    const formato = formatoDe(g), slides = formato === "slide";
+    if (!slides && window.AudioContext) actx ??= new AudioContext(); // en el clic, para que el navegador deje sonar la vista previa
+    $(".vmodal")?.remove();
+    const d = document.createElement("dialog");
+    d.className = "vmodal";
+    d.innerHTML = `
+      <div class="vm-head"><div><h3>${slides ? "Tu carrusel" : "Tu video"}</h3><div class="card-sub">${esc(g.titulo)}</div></div>
+        <button class="vm-close" type="button" aria-label="Cerrar">×</button></div>
+      <div class="vm-body">
+        <div class="vm-stage"><canvas aria-label="Vista previa"></canvas><button class="vm-play" type="button" aria-label="Reproducir">▶</button></div>
+        <div class="vm-side">
+          <span class="pill pill--sm vm-formato" style="align-self:flex-start">Preparando…</span>
+          ${slides ? "" : `<span class="upper muted">Voz en off</span>
+          <div class="chip-row vm-voces">${VOCES.map(([v, n], i) => `<button class="chip chip--plain${i ? "" : " is-selected"}" type="button" data-voz="${v}" aria-pressed="${!i}">${n}</button>`).join("")}</div>`}
+          <div><input class="vm-seek" type="range" min="0" max="1000" value="0" aria-label="Posición"><div class="vm-time"><span class="vm-t">0:00</span><span class="vm-d">0:00</span></div></div>
+          <button class="btn btn--primary btn--block vm-bajar" type="button" disabled><i data-i="download" class="i--sm"></i> ${slides ? "Descargar slides (JPG)" : "Descargar MP4"}</button>
+          <div class="progress vm-barra" hidden><span style="width:0%"></span></div>
+          <p class="vm-estado" aria-live="polite"></p>
+          <p class="vm-nota">${slides ? "Una imagen por slide, en 1080×1350, lista para subir como carrusel." : "El video se crea en tu navegador. La música la genera Flowy: es original y sin derechos de autor."}</p>
+        </div>
+      </div>`;
+    document.body.appendChild(d);
+    icons();
+    d.showModal();
+
+    const cv = $("canvas", d), c = cv.getContext("2d"), stage = $(".vm-stage", d), play = $(".vm-play", d), seek = $(".vm-seek", d);
+    const bajarBtn = $(".vm-bajar", d), barra = $(".vm-barra", d), estado = (txt) => { $(".vm-estado", d).textContent = txt; };
+    let plan, audio = null, voz = "", pos = 0, inicio = 0, sonando = false, fuente = null, raf = 0, ocupado = true, cancelar = false;
+
+    const ahora = () => !sonando ? pos : audio && actx ? actx.currentTime - inicio : performance.now() / 1000 - inicio;
+    const dibujar = (t) => { pintar(c, plan, t); seek.value = String(Math.round(t / plan.dur * 1000)); $(".vm-t", d).textContent = mmss(t); };
+    function tic() {
+      const t = ahora();
+      if (t >= plan.dur) { pausar(); pos = 0; dibujar(plan.dur - .01); return; }
+      dibujar(t); raf = requestAnimationFrame(tic);
+    }
+    function reproducir() {
+      if (sonando || !plan) return;
+      if (pos >= plan.dur - .05) pos = 0;
+      if (audio && actx) {
+        actx.resume();
+        fuente = actx.createBufferSource(); fuente.buffer = audio; fuente.connect(actx.destination); fuente.start(0, pos);
+        inicio = actx.currentTime - pos;
+      } else inicio = performance.now() / 1000 - pos;
+      sonando = true; stage.classList.add("is-playing"); play.textContent = "❚❚"; play.setAttribute("aria-label", "Pausar");
+      tic();
+    }
+    function pausar() {
+      if (!sonando) return;
+      pos = ahora(); sonando = false;
+      if (fuente) { try { fuente.stop(); } catch (e) {} fuente = null; }
+      cancelAnimationFrame(raf);
+      stage.classList.remove("is-playing"); play.textContent = "▶"; play.setAttribute("aria-label", "Reproducir");
+    }
+    const alternar = () => (sonando ? pausar() : reproducir());
+    async function preparar(v) {
+      let tiempos = null, tomas = [];
+      if (v) ({ tiempos, tomas } = await conVoz(g, v, estado));
+      const nuevo = slides ? planearSlides(g) : planear(g, formato, tiempos);
+      const mezcla = slides ? null : await mezclar(nuevo, g.tono, tomas).catch((e) => { console.error(e); return null; });
+      plan = nuevo; audio = mezcla; pos = 0;
+      cv.width = plan.F.W / 2; cv.height = plan.F.H / 2; c.setTransform(.5, 0, 0, .5, 0, 0);
+      $(".vm-d", d).textContent = mmss(plan.dur);
+      $(".vm-formato", d).textContent = slides ? `${plan.F.nombre} · ${plan.slides.length} slides` : `${plan.F.nombre} · ${mmss(plan.dur)}`;
+      dibujar(0);
+    }
+
+    play.addEventListener("click", alternar);
+    cv.addEventListener("click", alternar);
+    seek.addEventListener("input", () => {
+      if (!plan) return;
+      const seguia = sonando; pausar();
+      pos = Math.min(plan.dur - .01, seek.value / 1000 * plan.dur); dibujar(pos);
+      if (seguia) reproducir();
+    });
+    const marcarVoz = (v) => $$("[data-voz]", d).forEach((b) => { b.classList.toggle("is-selected", b.dataset.voz === v); b.setAttribute("aria-pressed", b.dataset.voz === v); });
+    $(".vm-voces", d)?.addEventListener("click", async (e) => {
+      const b = e.target.closest("[data-voz]");
+      if (!b || ocupado || b.dataset.voz === voz) return;
+      if (window.AudioContext) actx ??= new AudioContext();
+      const nueva = b.dataset.voz;
+      marcarVoz(nueva); pausar(); ocupado = true; bajarBtn.disabled = true;
+      try {
+        await preparar(nueva); voz = nueva;
+        estado(nueva ? "Voz lista ✓" : ""); reproducir();
+      } catch (err) {
+        marcarVoz(voz); toast(err.message, 4500); estado("");
+      } finally { ocupado = false; bajarBtn.disabled = false; }
+    });
+    bajarBtn.addEventListener("click", async () => {
+      if (ocupado) return;
+      ocupado = true; cancelar = false; pausar();
+      bajarBtn.disabled = true; barra.hidden = false;
+      const avance = (p, txt) => { barra.firstElementChild.style.width = Math.round(p * 100) + "%"; estado(txt || `Creando video… ${Math.round(p * 100)} %`); };
+      const nombre = "flowy-" + (plano(g.titulo).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 50) || "video");
+      try {
+        if (slides) bajar(await exportarSlides(plan, avance), nombre + "-slides.zip");
+        else {
+          const blob = await exportarVideo(plan, audio, avance, () => cancelar);
+          if (!blob) return;
+          bajar(blob, nombre + (blob.type.includes("webm") ? ".webm" : ".mp4"));
+        }
+        toast(slides ? "Slides descargadas ✨" : "Video descargado ✨");
+      } catch (err) {
+        console.error(err);
+        if (!cancelar) toast(err.message || "No pudimos crear el video. Inténtalo de nuevo.", 4500);
+      } finally {
+        ocupado = false; bajarBtn.disabled = false; barra.hidden = true; estado("");
+      }
+    });
+    const cerrar = () => d.open && d.close();
+    $(".vm-close", d).addEventListener("click", cerrar);
+    d.addEventListener("click", (e) => { if (e.target === d) cerrar(); }); // clic fuera del panel
+    addEventListener("hashchange", cerrar, { once: true });
+    d.addEventListener("close", () => { cancelar = true; pausar(); removeEventListener("hashchange", cerrar); d.remove(); });
+
+    Promise.all([cargarFuentes(), cargarMascota()])
+      .then(() => preparar(""))
+      .then(() => { ocupado = false; bajarBtn.disabled = false; reproducir(); })
+      .catch((err) => { console.error(err); toast("No pudimos preparar el video.", 4500); });
   }
 
   /* ---------- Grupos de selección (chips / cards / opciones) ----------
@@ -2258,6 +2813,17 @@ window.FLOWY_IMG={"base": "data:image/webp;base64,UklGRoi3AQBXRUJQVlA4WAoAAAAQAA
 
   /* ---------- Landing: guiones gratis con IA (sin cuenta) ---------- */
   const GRATIS = 3;
+  // El guion de ejemplo que se ve en la portada, para probar el video sin gastar un guion gratis
+  const EJEMPLO = {
+    titulo: "3 errores al editar tu primer reel", formato: "Lista", plataforma: "TikTok / Reels", tono: "Dinámico & Viral",
+    beats: [
+      { posicion: "gancho", etiqueta: "El gancho", texto: "Si editas tu primer reel así, la gente se va en tres segundos.", texto_pantalla: "Tu primer reel", palabra_clave: "reel" },
+      { posicion: "promesa", etiqueta: "El mapa", texto: "Son tres errores al editar tu primer reel. El segundo es el que más vistas cuesta.", texto_pantalla: "3 errores", palabra_clave: "reel" },
+      { posicion: "desarrollo", etiqueta: "Los 3 errores", texto: "Uno: silencios al empezar cada frase. Córtalos. Dos: cambiar de plano sin motivo. El plano cambia cuando cambia la idea. Tres: subtítulos que tapan tu cara. El texto acompaña, no tapa.", texto_pantalla: "", palabra_clave: "silencios" },
+      { posicion: "giro", etiqueta: "El giro", texto: "Editar bien no es añadir efectos. Es quitar lo que distrae.", texto_pantalla: "Quita, no añadas", palabra_clave: "quitar" },
+      { posicion: "llamada", etiqueta: "Guárdalo", texto: "Guarda este vídeo y míralo antes de exportar tu próximo reel.", texto_pantalla: "", palabra_clave: "Guarda" }
+    ]
+  };
   function initDemo() {
     const btn = $("#l-generar"), idea = $("#l-idea"), beats = $("#l-beats"), extra = $("#l-extra");
     const orig = btn.innerHTML;
@@ -2277,10 +2843,10 @@ window.FLOWY_IMG={"base": "data:image/webp;base64,UklGRoi3AQBXRUJQVlA4WAoAAAAQAA
       btn.innerHTML = '<span class="spinner"></span> Flowy está escribiendo…';
       beats.classList.add("is-loading");
       try {
-        const plat = selected("plataforma");
-        const g = await pedirGuion({ idea: idea.value, objetivo: selected("objetivo"), tono: selected("tono"), plataforma: plat, duracion: plat === "YouTube" ? "1–3 min" : "30–60 s" });
+        const plat = selected("plataforma"), tono = selected("tono");
+        const g = await pedirGuion({ idea: idea.value, objetivo: selected("objetivo"), tono, plataforma: plat, duracion: plat === "YouTube" ? "1–3 min" : "30–60 s" });
         store.set("gratis", store.get("gratis", 0) + 1);
-        ultimo = g;
+        ultimo = { ...g, plataforma: plat, tono };
         beats.innerHTML = g.beats.map((b) => `
           <div class="w-beat is-new"><div class="t"><span>${esc(b.tiempo)} | ${POS[b.posicion]}</span><span class="pill pill--sm">${esc(b.etiqueta)}</span></div>
             <p>“${resaltar(b.texto, b.palabra_clave)}”</p><em>${notaBloque(b)}</em></div>`).join("");
@@ -2304,6 +2870,7 @@ window.FLOWY_IMG={"base": "data:image/webp;base64,UklGRoi3AQBXRUJQVlA4WAoAAAAQAA
     btn.addEventListener("click", generar);
     $("#l-regen").addEventListener("click", generar);
     $("#l-copy").addEventListener("click", () => copiar(ultimo ? textoGuion(ultimo) : $$(".w-beat", beats).map((b) => b.innerText.replace(/\n+/g, "\n")).join("\n\n")));
+    $("#l-video").addEventListener("click", () => abrirVideo(ultimo || EJEMPLO));
     idea.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); generar(); } });
     estado();
   }
@@ -2361,9 +2928,10 @@ window.FLOWY_IMG={"base": "data:image/webp;base64,UklGRoi3AQBXRUJQVlA4WAoAAAAQAA
       const orig = btn.innerHTML;
       btn.innerHTML = '<span class="spinner"></span> Flowy está escribiendo…';
       try {
-        const g = await pedirGuion({ idea: idea.value.replace(/▍/g, ""), dato: $("#dato").value, objetivo: selected("objetivo"), tono: selected("tono"), marco: selected("marco"), plataforma: selected("plataforma"), duracion: selected("duracion") });
+        const datos = { idea: idea.value.replace(/▍/g, ""), dato: $("#dato").value, objetivo: selected("objetivo"), tono: selected("tono"), marco: selected("marco"), plataforma: selected("plataforma"), duracion: selected("duracion") };
+        const g = await pedirGuion(datos);
         credits -= 5; store.set("credits", credits);
-        ultimo = g;
+        ultimo = { ...g, plataforma: datos.plataforma, tono: datos.tono };
         $("#beats").innerHTML = g.beats.map((b) => `
         <article class="beat is-new">
           <div class="beat-head"><span>${esc(b.tiempo)} · ${POS[b.posicion]}</span><span class="pill pill--sm">${esc(b.etiqueta)}</span></div>
@@ -2388,6 +2956,7 @@ window.FLOWY_IMG={"base": "data:image/webp;base64,UklGRoi3AQBXRUJQVlA4WAoAAAAQAA
     btn.addEventListener("click", generar);
     $("#btn-regen").addEventListener("click", generar);
     $("#btn-copy").addEventListener("click", () => { if (ultimo) copiar(textoGuion(ultimo)); else toast("Primero genera un guion"); });
+    $("#btn-video").addEventListener("click", () => { if (ultimo) abrirVideo(ultimo); else toast("Primero genera un guion"); });
     $("#btn-save").addEventListener("click", () => toast("Guardado en tu Biblioteca")); // TODO(supabase): insert en scripts
     $("#btn-tele").addEventListener("click", () => toast("Teleprompter: próximamente"));
     const pill = $(".credit-pill span"); if (pill) pill.textContent = credits + " / 500 Créditos";

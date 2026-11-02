@@ -29,12 +29,14 @@ El `.env` está en `.gitignore` y `.vercelignore`: nunca se sube a git ni a Verc
 | `GEMINI_API_KEY` | Clave de Gemini | **Nunca** |
 | `GEMINI_MODEL` | Modelo de Gemini (vacío = `gemini-3.6-flash`; `gemini-3.8-flash` va muy lento en cuentas nuevas) | No |
 | `GEMINI_MODEL_RESPALDO` | Modelo de Gemini que se usa si el principal está saturado (vacío = `gemini-3.5-flash`) | No |
+| `GEMINI_TTS_MODEL` | Modelo de voz para los videos (vacío = `gemini-3.8-flash-lite-tts`; si está saturado, `gemini-3.8-flash-tts`) | No |
 | `ANTHROPIC_API_KEY` | Clave de Claude | **Nunca** |
 | `CLAUDE_MODEL` | Modelo de Claude (vacío = `claude-opus-5-5`) | No |
 | `SUPABASE_URL` | URL del proyecto de Supabase | Sí, por `/api/config` |
 | `SUPABASE_ANON_KEY` | Clave pública (anon) de Supabase | Sí, por `/api/config` |
 | `SUPABASE_SERVICE_ROLE_KEY` | Clave secreta de Supabase: se salta las reglas RLS | **Nunca** |
 | `GUIONES_POR_HORA` | Guiones por IP y hora (10 por defecto) | No |
+| `VOCES_POR_HORA` | Voces para videos por IP y hora (20 por defecto; un video de 30–60 s usa una) | No |
 | `PORT` | Puerto local (3000 por defecto) | No |
 
 `/api/config` solo devuelve `SUPABASE_URL` y `SUPABASE_ANON_KEY`. Si la anon key resulta ser una clave secreta (`sb_secret_…` o un JWT con rol `service_role`), no la envía y lo avisa en la consola del servidor.
@@ -47,6 +49,17 @@ El `.env` está en `.gitignore` y `.vercelignore`: nunca se sube a git ni a Verc
 - En la portada (sección «Generador de Guiones AI en Vivo») cada visitante tiene 3 guiones gratis sin registrarse. Después, el botón lleva a crear cuenta.
 - El generador del panel usa el mismo endpoint (5 créditos por guion, que de momento se guardan solo en el navegador).
 - Límite de abuso: `GUIONES_POR_HORA` por IP. Se guarda en memoria, así que es una protección básica. Pon también límites de gasto en Google AI Studio y en la consola de Anthropic.
+- En el plan gratis de Gemini cada modelo tiene un cupo diario para todo el proyecto (por ejemplo, 20 peticiones al día con `gemini-3.6-flash`). Con la web publicada, ese cupo se acaba rápido: activa la facturación en Google AI Studio.
+
+## Videos
+
+Debajo de cada guion, el botón «Crear video» abre un panel con la vista previa y la descarga.
+
+- Reels / TikTok: video vertical 1080×1920. YouTube: horizontal 1920×1080. Carrusel: una imagen JPG de 1080×1350 por slide, en un ZIP.
+- El video lleva el texto en pantalla de cada bloque, subtítulos con la palabra clave resaltada, un cambio visual cada 2,5 s, barra de progreso, música original sintetizada (sin derechos de autor) y la marca «Hecho con Flowy.ai».
+- Se crea en el navegador del visitante (Canvas, Web Audio y WebCodecs con [Mediabunny](https://mediabunny.dev)), así que no gasta servidor. Mediabunny se descarga de jsDelivr solo al pulsar «Descargar MP4».
+- Voz en off (opcional, 4 voces): `api/voz.js` pide la voz a Gemini de una sola vez para todo el guion (o en tramos de hasta 1.400 caracteres si es largo) y devuelve un WAV. El navegador sincroniza cada bloque con las pausas de la voz.
+- En la portada el botón funciona también con el guion de ejemplo, sin gastar ninguno de los 3 guiones gratis.
 
 ## Probar
 
@@ -68,4 +81,4 @@ El `.env` está en `.gitignore` y `.vercelignore`: nunca se sube a git ni a Verc
 
 ## Publicar
 
-La carpeta está lista para Vercel: `index.html` se sirve como estático y `api/guion.js` y `api/config.js` como funciones. Añade las variables del `.env` en Settings → Environment Variables del proyecto (no subas el archivo).
+La carpeta está lista para Vercel: `index.html` se sirve como estático y `api/guion.js`, `api/voz.js` y `api/config.js` como funciones. Añade las variables del `.env` en Settings → Environment Variables del proyecto (no subas el archivo).

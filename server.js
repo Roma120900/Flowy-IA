@@ -6,10 +6,12 @@
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { POST as generarGuion, proveedoresActivos } from "./api/guion.js";
+import { POST as ponerVoz } from "./api/voz.js";
 import { GET as configPublica } from "./api/config.js";
 
 const PORT = Number(process.env.PORT || 3000);
 const INDEX = new URL("./index.html", import.meta.url);
+const APIS_POST = { "/api/guion": generarGuion, "/api/voz": ponerVoz };
 
 const enviar = async (res, r) => res.writeHead(r.status, Object.fromEntries(r.headers)).end(Buffer.from(await r.arrayBuffer()));
 
@@ -17,7 +19,8 @@ createServer(async (req, res) => {
   try {
     const url = new URL(req.url, "http://" + (req.headers.host || "localhost"));
 
-    if (url.pathname === "/api/guion") {
+    const api = APIS_POST[url.pathname];
+    if (api) {
       if (req.method !== "POST") { res.writeHead(405, { Allow: "POST" }).end(); return; }
       const partes = []; let peso = 0;
       for await (const c of req) {
@@ -25,7 +28,7 @@ createServer(async (req, res) => {
         if (peso > 16384) { res.writeHead(413).end(); return; }
         partes.push(c);
       }
-      await enviar(res, await generarGuion(new Request(url, {
+      await enviar(res, await api(new Request(url, {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-Forwarded-For": req.socket.remoteAddress || "local" },
         body: Buffer.concat(partes)
