@@ -469,6 +469,7 @@ button.tag:hover { background: #e4d3ff; }
 .beat.is-new { animation: fadeUp .45s ease both; }
 .beat-head { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-secondary); font-family: var(--font-label); }
 .beat p { font-size: 15px; line-height: 22px; }
+.beat em { font-style: normal; font-size: 12px; color: var(--text-muted); }
 .stats4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
 .stat { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; text-align: left; background: #fff; }
 .stat b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 24px; line-height: 30px; color: var(--accent-neon); letter-spacing: -.04em; }
@@ -629,7 +630,7 @@ button.tag:hover { background: #e4d3ff; }
 .window-bar .dots i { width: 10px; height: 10px; border-radius: 50%; background: #d9c8fb; }
 .window-bar .url { flex: 1; text-align: center; background: #fff; border-radius: var(--radius-pill); padding: 4px 0; }
 .window-body { display: grid; grid-template-columns: 1fr 1.25fr; gap: 0; }
-.window-col { padding: 24px; display: flex; flex-direction: column; gap: 14px; }
+.window-col { padding: 24px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .window-col + .window-col { border-left: 1px solid var(--line-soft); background: var(--bg-deep); }
 .w-card { border-radius: 12px; background: var(--bg-surface); padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
 .w-card b { font-size: 14px; font-weight: 500; }
@@ -643,6 +644,11 @@ button.tag:hover { background: #e4d3ff; }
 .w-beat .t { display: flex; justify-content: space-between; font-size: 11px; font-family: var(--font-label); color: var(--text-secondary); }
 .w-beat p { font-size: 13px; line-height: 19px; }
 .w-beat em { font-style: normal; font-size: 11px; color: var(--text-muted); }
+.w-beat.is-new { animation: fadeUp .45s ease both; }
+.w-beats { display: flex; flex-direction: column; gap: 14px; transition: opacity .2s; }
+.w-beats.is-loading { opacity: .45; pointer-events: none; }
+.window-col .idea-box textarea { min-height: 0; }
+@media (max-width: 560px) { .mini-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .window-foot { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); }
 
 /* Pilares */
@@ -835,29 +841,48 @@ button.tag:hover { background: #e4d3ff; }
           </div>
           <div class="window-body">
             <div class="window-col">
-              <div><h3 class="card-title">Configuración del Guión</h3><div class="card-sub">Parámetros de entrada neuro-persuasivos</div></div>
-              <span class="pill pill--sm" style="align-self:flex-start">Paso 3 de 3</span>
+              <div><h3 class="card-title">Configuración del Guion</h3><div class="card-sub">Pruébalo gratis, sin crear cuenta</div></div>
+              <span class="pill pill--sm" id="l-free" style="align-self:flex-start">3 guiones gratis</span>
+              <div class="idea-box">
+                <span class="upper" style="color:var(--text-secondary)">Idea central</span>
+                <textarea id="l-idea" rows="2" maxlength="400" aria-label="Idea central del guion" placeholder="Ej. 3 errores que cometen los creadores al editar su primer reel"></textarea>
+              </div>
               <span class="upper muted">1. Nivel de tono</span>
-              <div class="w-card line"><b>Autoridad Directa</b><small>Calibrado para fundadores B2B, ingenieros y creadores técnicos.</small></div>
+              <div class="chip-row" data-group="tono">
+                <button class="chip chip--plain is-selected" type="button" data-option data-value="Dinámico & Viral">Dinámico &amp; Viral</button>
+                <button class="chip chip--plain" type="button" data-option data-value="Storytelling">Storytelling</button>
+                <button class="chip chip--plain" type="button" data-option data-value="Autoridad">Autoridad</button>
+                <button class="chip chip--plain" type="button" data-option data-value="Educativo">Educativo</button>
+              </div>
               <span class="upper muted">2. Marco de retención</span>
-              <div class="w-card"><b>Gancho de Curiosidad Inversa</b>
-                <div class="chip-row" style="margin-top:6px"><span class="chip chip--plain" style="height:26px">Inversión</span><span class="chip chip--plain" style="height:26px">Contraste 3x</span><span class="chip chip--plain" style="height:26px">Bucle Abierto</span></div></div>
+              <div class="chip-row" data-group="marco">
+                <button class="chip chip--plain is-selected" type="button" data-option data-value="Gancho 3s">Gancho 3s</button>
+                <button class="chip chip--plain" type="button" data-option data-value="Problema → Solución">Problema → Solución</button>
+                <button class="chip chip--plain" type="button" data-option data-value="Mito vs Realidad">Mito vs Realidad</button>
+              </div>
               <span class="upper muted">3. Destino de producción</span>
-              <div class="w-card"><b>Reels / Shorts / TikTok</b><small>Aspecto 9:16 (60 segundos)</small></div>
+              <div class="chip-row" data-group="plataforma">
+                <button class="chip chip--plain is-selected" type="button" data-option data-value="TikTok / Reels">Reels / Shorts / TikTok</button>
+                <button class="chip chip--plain" type="button" data-option data-value="YouTube">YouTube</button>
+                <button class="chip chip--plain" type="button" data-option data-value="Carrusel">Carrusel</button>
+              </div>
+              <button id="l-generar" class="btn btn--primary btn--block" type="button">Generar guion gratis <i data-i="zap" class="i--sm"></i></button>
               <div class="mini-stats">
-                <div><b>98</b><small>Gancho · /100</small></div><div><b>87%</b><small>Retención</small></div><div><b>52s</b><small>Lectura</small></div><div><b>142</b><small>Palabras</small></div>
+                <div><b id="l-hook">98</b><small>Gancho · /100</small></div><div><b id="l-ret">87%</b><small>Retención</small></div><div><b id="l-read">52 s</b><small>Lectura</small></div><div><b id="l-words">142</b><small>Palabras</small></div>
               </div>
             </div>
             <div class="window-col">
-              <div class="row"><div style="flex:1"><h3 class="card-title">Vista Previa del Guión Sintetizado</h3><div class="card-sub">Optimizador neuronal en ejecución</div></div>
-                <span class="chip chip--plain" style="height:30px">Copiar</span><span class="chip chip--plain" style="height:30px">Regenerar</span></div>
-              <div class="w-beat"><div class="t"><span>0:00 - 0:03 | El Gancho Psicológico</span><span class="pill pill--sm">Retención Crítica</span></div>
-                <p>“El 99% de los creadores cometen el error de editar antes de estructurar. Te muestro la fórmula que usan los estudios de 7 cifras.”</p><em>Pista visual: Zoom rápido al rostro con corte en seco al monitor de Flowy.</em></div>
-              <div class="w-beat"><div class="t"><span>0:03 - 0:45 | El Cuerpo de Alto Valor</span><span class="pill pill--sm">3 Puntos Clave</span></div>
-                <p>“Paso 1: Identifica qué patrón está saturado en tu nicho. Paso 2: Invierte la premisa en los primeros dos segundos. Paso 3: Entrega la solución de inmediato.”</p><em>Subtítulos dinámicos con luz neural sincronizados palabra por palabra.</em></div>
-              <div class="w-beat"><div class="t"><span>0:45 - 0:60 | Cierre &amp; Conversión</span><span class="pill pill--sm">CTA Claro</span></div>
-                <p>“Escribe 'FLOWY' en comentarios y te envío esta plantilla exacta para que generes tus próximos diez contenidos virales.”</p><em>Disparador de lead magnet automatizado.</em></div>
-              <div class="window-foot"><i data-i="check" class="i--sm" style="color:var(--ok)"></i> Guión pre-compilado listo para producción</div>
+              <div class="row"><div style="flex:1"><h3 class="card-title">Vista Previa del Guion Sintetizado</h3><div class="card-sub" id="l-sub">Ejemplo · escribe tu idea y genera el tuyo</div></div>
+                <button id="l-copy" class="chip chip--plain" type="button" style="height:30px">Copiar</button><button id="l-regen" class="chip chip--plain" type="button" style="height:30px">Regenerar</button></div>
+              <div class="w-beats" id="l-beats" aria-live="polite">
+                <div class="w-beat"><div class="t"><span>0:00 - 0:03 | El Gancho Psicológico</span><span class="pill pill--sm">Retención Crítica</span></div>
+                  <p>“El 99% de los creadores cometen el error de editar antes de estructurar. Te muestro la fórmula que usan los estudios de 7 cifras.”</p><em>Pista visual: Zoom rápido al rostro con corte en seco al monitor de Flowy.</em></div>
+                <div class="w-beat"><div class="t"><span>0:03 - 0:45 | El Cuerpo de Alto Valor</span><span class="pill pill--sm">3 Puntos Clave</span></div>
+                  <p>“Paso 1: Identifica qué patrón está saturado en tu nicho. Paso 2: Invierte la premisa en los primeros dos segundos. Paso 3: Entrega la solución de inmediato.”</p><em>Subtítulos dinámicos con luz neural sincronizados palabra por palabra.</em></div>
+                <div class="w-beat"><div class="t"><span>0:45 - 0:60 | Cierre &amp; Conversión</span><span class="pill pill--sm">CTA Claro</span></div>
+                  <p>“Escribe 'FLOWY' en comentarios y te envío esta plantilla exacta para que generes tus próximos diez contenidos virales.”</p><em>Disparador de lead magnet automatizado.</em></div>
+              </div>
+              <div class="window-foot"><i data-i="check" class="i--sm" style="color:var(--ok)"></i> <span id="l-foot">Guion de ejemplo listo para producción</span></div>
             </div>
           </div>
         </div>
@@ -2034,15 +2059,37 @@ window.FLOWY_IMG={"base": "data:image/webp;base64,UklGRoi3AQBXRUJQVlA4WAoAAAAQAA
   };
 
   let toastEl;
-  function toast(msg) {
+  function toast(msg, ms = 2200) {
     if (!toastEl) { toastEl = document.createElement("div"); toastEl.className = "toast"; document.body.appendChild(toastEl); }
     toastEl.textContent = msg;
     toastEl.classList.add("is-show");
     clearTimeout(toast._t);
-    toast._t = setTimeout(() => toastEl.classList.remove("is-show"), 2200);
+    toast._t = setTimeout(() => toastEl.classList.remove("is-show"), ms);
   }
 
   const icons = () => window.FlowyIcons && window.FlowyIcons.render();
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const lectura = (secs) => secs >= 120 ? Math.round(secs / 60) + " min" : secs + " s";
+
+  function copiar(text) {
+    const done = () => toast("Guion copiado al portapapeles");
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, done);
+    else { const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); } catch (e) {} ta.remove(); done(); }
+  }
+
+  /* ---------- IA: pide un guion a /api/guion (ver api/guion.js) ---------- */
+  async function pedirGuion(datos) {
+    const sinServidor = "Para usar la IA abre la web con «npm start» (http://localhost:3000)";
+    if (location.protocol === "file:") throw new Error(sinServidor);
+    let r;
+    try {
+      r = await fetch("/api/guion", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(datos) });
+    } catch (e) { throw new Error("No hay conexión con el servidor de Flowy"); }
+    if (r.status === 404 || r.status === 405) throw new Error(sinServidor);
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || "No pudimos generar el guion. Inténtalo de nuevo.");
+    return j;
+  }
 
   /* ---------- Grupos de selección (chips / cards / opciones) ----------
      <div data-group="clave" [data-multi]> <button data-option data-value="..."> */
@@ -2149,6 +2196,55 @@ window.FLOWY_IMG={"base": "data:image/webp;base64,UklGRoi3AQBXRUJQVlA4WAoAAAAQAA
       }, { rootMargin: "-40% 0px -50% 0px" });
       sections.forEach((s) => io.observe(s));
     }
+    initDemo();
+  }
+
+  /* ---------- Landing: guiones gratis con IA (sin cuenta) ---------- */
+  const GRATIS = 3;
+  function initDemo() {
+    const btn = $("#l-generar"), idea = $("#l-idea"), beats = $("#l-beats");
+    const orig = btn.innerHTML;
+    const quedan = () => Math.max(0, GRATIS - store.get("gratis", 0));
+    const estado = () => {
+      const n = quedan();
+      $("#l-free").textContent = n ? n + (n === 1 ? " guion gratis" : " guiones gratis") : "Guiones gratis agotados";
+      btn.innerHTML = n ? orig : 'Crea tu cuenta para seguir <i data-i="arrow" class="i--sm"></i>';
+      icons();
+    };
+    const generar = async () => {
+      if (btn.disabled) return;
+      if (!quedan()) { navigate("registro"); return; }
+      if (idea.value.trim().length < 3) { toast("Escribe tu idea para el guion"); idea.focus(); return; }
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Flowy está escribiendo…';
+      beats.classList.add("is-loading");
+      try {
+        const plat = selected("plataforma");
+        const g = await pedirGuion({ idea: idea.value, tono: selected("tono"), marco: selected("marco"), plataforma: plat, duracion: plat === "YouTube" ? "1–3 min" : "30–60 s" });
+        store.set("gratis", store.get("gratis", 0) + 1);
+        beats.innerHTML = g.beats.map((b) => `
+          <div class="w-beat is-new"><div class="t"><span>${esc(b.tiempo)} | ${esc(b.seccion)}</span><span class="pill pill--sm">${esc(b.etiqueta)}</span></div>
+            <p>“${esc(b.texto)}”</p><em>${esc(b.pista)}</em></div>`).join("");
+        $("#l-hook").textContent = g.gancho;
+        $("#l-ret").textContent = g.retencion + "%";
+        $("#l-read").textContent = lectura(g.segundos);
+        $("#l-words").textContent = g.palabras;
+        $("#l-sub").textContent = g.titulo;
+        $("#l-foot").textContent = "Guion generado por Flowy · listo para grabar";
+        toast("Guion generado ✨");
+      } catch (e) {
+        toast(e.message, 4500);
+      } finally {
+        beats.classList.remove("is-loading");
+        btn.disabled = false;
+        estado();
+      }
+    };
+    btn.addEventListener("click", generar);
+    $("#l-regen").addEventListener("click", generar);
+    $("#l-copy").addEventListener("click", () => copiar($$(".w-beat", beats).map((b) => b.innerText.replace(/\n+/g, "\n")).join("\n\n")));
+    idea.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); generar(); } });
+    estado();
   }
 
   /* ---------- Dashboard ---------- */
@@ -2162,8 +2258,10 @@ window.FLOWY_IMG={"base": "data:image/webp;base64,UklGRoi3AQBXRUJQVlA4WAoAAAAQAA
       span.textContent = next;
     }));
     const go = () => {
-      const q = encodeURIComponent(input.value.trim());
-      navigate("generador" + (q ? "?idea=" + q : ""));
+      const q = input.value.trim();
+      if (!q) { navigate("generador"); return; }
+      const [duracion, plataforma] = $$("[data-cycle] span").map((s) => s.textContent.trim());
+      navigate("generador?" + new URLSearchParams({ idea: q, duracion, plataforma, auto: "1" }));
     };
     $("#btn-generar-rapido").addEventListener("click", go);
     input.addEventListener("keydown", (e) => { if (e.key === "Enter") go(); });
@@ -2233,35 +2331,56 @@ window.FLOWY_IMG={"base": "data:image/webp;base64,UklGRoi3AQBXRUJQVlA4WAoAAAAQAA
       if (t) $$('[data-group="tono"] [data-option]').forEach((o) => o.classList.toggle("is-selected", o === t));
     }
 
+    // Parámetros que llegan desde el Panel («Crear Nuevo Guion en 1-Clic»)
+    const marcar = (group, value) => {
+      const opts = $$(`[data-group="${group}"] [data-option]`), o = opts.find((x) => x.dataset.value === value);
+      if (o) opts.forEach((x) => x.classList.toggle("is-selected", x === o));
+    };
+    if (params.get("plataforma")) marcar("plataforma", params.get("plataforma"));
+    if (params.get("duracion")) marcar("duracion", { "30-60s": "30–60 s", "1-3 min": "1–3 min", "5-10 min": "5–10 min" }[params.get("duracion")]);
+
     const btn = $("#btn-generar");
-    btn.addEventListener("click", () => {
+    const generar = async () => {
+      if (btn.disabled) return;
       if (credits < 5) { toast("No te quedan créditos suficientes"); return; }
       btn.disabled = true;
       const orig = btn.innerHTML;
       btn.innerHTML = '<span class="spinner"></span> Flowy está escribiendo…';
-      // TODO(supabase): llamar a la Edge Function que genera el guion con IA
-      setTimeout(() => {
+      try {
+        const g = await pedirGuion({ idea: idea.value.replace(/▍/g, ""), tono: selected("tono"), marco: selected("marco"), plataforma: selected("plataforma"), duracion: selected("duracion") });
         credits -= 5; store.set("credits", credits);
-        variant++;
-        render(true);
+        $("#beats").innerHTML = g.beats.map((b) => `
+        <article class="beat is-new">
+          <div class="beat-head"><span>${esc(b.tiempo)} · ${esc(b.seccion)}</span><span class="pill pill--sm">${esc(b.etiqueta)}</span></div>
+          <p>“${esc(b.texto)}”</p><em>${esc(b.pista)}</em>
+        </article>`).join("");
+        $("#st-hook").textContent = g.gancho;
+        $("#st-ret").textContent = g.retencion + "%";
+        $("#st-read").textContent = lectura(g.segundos);
+        $("#st-words").textContent = g.palabras;
+        $("#synth").textContent = "Sintetizado por Flowy · " + g.titulo;
         $("#credits-left").textContent = credits;
         const pill = $(".credit-pill span"); if (pill) pill.textContent = credits + " / 500 Créditos";
-        btn.innerHTML = orig; btn.disabled = false; icons();
         toast("Guion generado ✨");
-      }, 1100);
-    });
-    $("#btn-regen").addEventListener("click", () => { variant++; render(true); toast("Nueva versión generada"); });
-    $("#btn-copy").addEventListener("click", () => {
-      const text = $$("#beats .beat").map((b) => b.innerText.replace(/\n+/g, "\n")).join("\n\n");
-      const done = () => toast("Guion copiado al portapapeles");
-      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, done);
-      else { const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); } catch (e) {} ta.remove(); done(); }
-    });
+      } catch (e) {
+        toast(e.message, 4500);
+      } finally {
+        btn.innerHTML = orig; btn.disabled = false; icons();
+      }
+    };
+    btn.addEventListener("click", generar);
+    $("#btn-regen").addEventListener("click", generar);
+    $("#btn-copy").addEventListener("click", () => copiar($$("#beats .beat").map((b) => b.innerText.replace(/\n+/g, "\n")).join("\n\n")));
     $("#btn-save").addEventListener("click", () => toast("Guardado en tu Biblioteca")); // TODO(supabase): insert en scripts
     $("#btn-tele").addEventListener("click", () => toast("Teleprompter: próximamente"));
     render(false);
     const pill = $(".credit-pill span"); if (pill) pill.textContent = credits + " / 500 Créditos";
     $("#credits-left").textContent = credits;
+    if (params.get("auto")) {
+      params.delete("auto");
+      history.replaceState(null, "", "#/generador?" + params); // al recargar no vuelve a gastar créditos
+      generar();
+    }
   }
 
   /* ---------- Biblioteca ---------- */
