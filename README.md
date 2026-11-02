@@ -27,7 +27,7 @@ El `.env` está en `.gitignore` y `.vercelignore`: nunca se sube a git ni a Verc
 |---|---|---|
 | `AI_PROVIDER` | IA principal: `gemini` o `claude` (por defecto `gemini`) | No |
 | `GEMINI_API_KEY` | Clave de Gemini | **Nunca** |
-| `GEMINI_MODEL` | Modelo de Gemini (vacío = `gemini-3.8-flash`) | No |
+| `GEMINI_MODEL` | Modelo de Gemini (vacío = `gemini-3.6-flash`; `gemini-3.8-flash` va muy lento en cuentas nuevas) | No |
 | `ANTHROPIC_API_KEY` | Clave de Claude | **Nunca** |
 | `CLAUDE_MODEL` | Modelo de Claude (vacío = `claude-opus-5-5`) | No |
 | `SUPABASE_URL` | URL del proyecto de Supabase | Sí, por `/api/config` |

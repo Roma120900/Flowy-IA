@@ -11,7 +11,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenAI, ApiError as GeminiError } from "@google/genai";
 
 const CLAUDE_MODEL = process.env.CLAUDE_MODEL || "claude-opus-5-5";
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.6-flash";
 const LIMITE_POR_HORA = Number(process.env.GUIONES_POR_HORA || 10);
 
 /* Opciones válidas (las mismas que muestran los chips de la web) */
@@ -133,7 +133,11 @@ async function escribirConGemini(p) {
   const r = await gemini.models.generateContent({
     model: GEMINI_MODEL,
     contents: mensaje(p),
-    config: { systemInstruction: SISTEMA, responseMimeType: "application/json", responseJsonSchema: ESQUEMA, maxOutputTokens: 16000 }
+    config: {
+      systemInstruction: SISTEMA, responseMimeType: "application/json", responseJsonSchema: ESQUEMA, maxOutputTokens: 16000,
+      // Razonamiento bajo: el guion sale en ~4 s con la misma calidad (solo los Gemini 3.x aceptan thinkingLevel)
+      ...(GEMINI_MODEL.startsWith("gemini-3") ? { thinkingConfig: { thinkingLevel: "LOW" } } : {})
+    }
   });
   const fin = r.candidates?.[0]?.finishReason;
   if (r.promptFeedback?.blockReason || ["SAFETY", "PROHIBITED_CONTENT", "BLOCKLIST", "SPII", "RECITATION"].includes(fin)) throw new ErrorGuion(422, RECHAZO);
